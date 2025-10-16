@@ -10,7 +10,7 @@ export default function HeroSection() {
             >
             <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto w-full xl:mt-18">
                 <div className="flex flex-col xl:flex-row justify-between gap-5 items-center">
-                    <div className="w-full xl:w-1/2 space-y-4 xl:space-y-8 text-center xl:text-left order-2 xl:order-1">
+                    <div className="w-full xl:w-1/2 space-y-4 xl:space-y-7 text-center xl:text-left order-2 xl:order-1">
                         <AnimatedContent
                             distance={100}
                             direction="horizontal"
@@ -24,12 +24,12 @@ export default function HeroSection() {
                             delay={0}
                         >
                             <p>
-                                <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
+                                <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
                                     Hello, I'm
                                 </span>
                             </p>
 
-                            <div className="relative leading-none 2xl:mt-10">
+                            <div className="relative leading-none">
                                 <div className="absolute inset-0 blur-sm opacity-50 pointer-events-none">
                                     <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
                                         Brian Yudhistira
@@ -60,7 +60,7 @@ export default function HeroSection() {
                                 pauseDuration={2000}
                                 showCursor={true}
                                 cursorCharacter="|"
-                                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-white/90 relative z-10 leading-none py-2 transition-all duration-300 font-retro-mono"
+                                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl 2xl:text-4xl font-bold text-white/90 relative z-10 leading-none py-2 transition-all duration-300 font-retro-mono"
                             />
                         </AnimatedContent>
 
@@ -150,7 +150,7 @@ export default function HeroSection() {
                                 <img
                                     src="/images/portfolio/Hero.svg"
                                     alt="Home Main Illustration"
-                                    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[500px] hover:scale-110 object-contain transition-transform duration-500"
+                                    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[450px] hover:scale-110 object-contain transition-transform duration-500"
                                 />
                             </Magnet>
                         </AnimatedContent>

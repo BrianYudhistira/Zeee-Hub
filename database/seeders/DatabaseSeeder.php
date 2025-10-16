@@ -17,7 +17,12 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'brianyudhistira1@gmail.com',
+            'password' => bcrypt('password'),
         ]);
+
+        // Seed portfolio data
+        $this->call(PortfolioSeeder::class);
+
     }
 }

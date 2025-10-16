@@ -1,5 +1,4 @@
 import GlareHover from '@/Components/Animations/UI/GlareHover';
-import Particles from '@/Components/Animations/Background/Particles';
 import { AiOutlineMail } from 'react-icons/ai';
 import { MdOutlineCall } from 'react-icons/md';
 import { FaLinkedin, FaGithub,FaInstagram } from 'react-icons/fa6';
@@ -7,7 +6,7 @@ import { FaLinkedin, FaGithub,FaInstagram } from 'react-icons/fa6';
 export default function ContactSection(){
     return(
         <section id="contact" className='flex flex-col items-center mx-auto py-20 scroll-mt-16 relative'>
-            <div className='flex flex-col justify-center max-w-[80%] md:max-w-[60%] xl:max-w-[70%] 2xl:max-w-[60%] w-full z-20'>
+            <div className='flex flex-col justify-center max-w-[80%] md:max-w-[75%] xl:max-w-[70%] w-full z-20'>
                 <div className="flex flex-col justify-center items-center mb-10">
                     <span className='text-transparent text-4xl sm:text-6xl font-extrabold mb-5 bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 font-retro-pixel tracking-wider'>Get In Touch</span>
                     <p className='text-white text-lg text-center font-retro-mono'>Feel Free to contact me</p>

@@ -1,0 +1,32 @@
+Saya akan menjelaskan fungsi-fungsi field tambahan yang ada di schema database:
+
+1. slug di table portfolio_users
+Fungsi: Membuat URL yang SEO-friendly dan user-friendly
+Contoh:
+Username: "Brian Yudhistira" → slug: "brian-yudhistira"
+URL portfolio: yoursite.com/portfolio/brian-yudhistira
+Kegunaan:
+Mengganti ID numerik di URL (lebih profesional)
+SEO optimization
+Easy sharing dan memorable URLs
+User bisa customize slug mereka
+2. is_active di table portfolio_users
+Fungsi: Status publikasi portfolio
+Kegunaan:
+true: Portfolio dipublikasikan dan bisa diakses publik
+false: Portfolio di-draft/disembunyikan sementara
+User bisa menyembunyikan portfolio tanpa menghapus data
+Admin bisa menonaktifkan portfolio tertentu
+3. sort_order di table projects
+Fungsi: Mengatur urutan tampilan project
+Kegunaan:
+User bisa drag-drop untuk mengatur urutan project
+Project penting bisa ditampilkan di atas
+Nilai kecil = urutan lebih atas (0, 1, 2, 3...)
+4. is_featured di table projects
+Fungsi: Menandai project unggulan/highlight
+Kegunaan:
+Featured projects ditampilkan lebih prominent
+Bisa ada section "Featured Projects" terpisah
+Styling khusus untuk project yang di-featured
+Filter untuk menampilkan hanya featured projects
