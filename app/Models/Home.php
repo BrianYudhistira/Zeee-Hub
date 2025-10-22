@@ -15,6 +15,8 @@ class Home extends Model
     protected $fillable = [
         'portfolio_user_id',
         'greeting',
+        'name',
+        'passions',
         'description',
         'logo_path',
         'social_media_links',
@@ -22,6 +24,7 @@ class Home extends Model
 
     protected $casts = [
         'social_media_links' => 'array',
+        'passions' => 'array',
     ];
 
     /**

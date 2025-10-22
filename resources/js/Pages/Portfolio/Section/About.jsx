@@ -4,7 +4,7 @@ import SplitText from "@/Components/Animations/Text/SplitText";
 import Magnet from "@/Components/Animations/UI/Magnet";
 import PixelCard from "@/Components/Animations/UI/PixelCard";
 
-export default function AboutSection({ userphoto }) {
+export default function AboutSection({ about }) {
   return (
     <section id="about" className="relative w-full min-h-screen flex justify-center items-center font-mono scroll-mt-15 mb-20 scroll-mt-3">
       <div className="max-w-[80%] 2xl:max-w-[85%] w-full relative z-10">
@@ -58,7 +58,7 @@ export default function AboutSection({ userphoto }) {
                       </div>
                     <PixelCard className="absolute w-full h-full overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900" variant="blue">
                       <img
-                        src={userphoto}
+                        src={`/storage/${about.image_path}`}
                         alt="User Photo"
                         weight={400}
                         height={800}
@@ -91,7 +91,7 @@ export default function AboutSection({ userphoto }) {
                   speed={0.3}
                   scrambleChars={".;"}
                 >
-                  Hi! I'm Brian Yudhistira, a fresh Informatics Engineering graduate from Universitas Muhammadiyah Malang. I'm passionate about modern full stack web development using Laravel, Next.js, and Tailwind CSS. As a tech enthusiast with a 3.79 GPA, I love learning, innovating, and creating meaningful digital experiences.
+                  {about.description}
                 </ScrambledText>
               </AnimatedContent>
               <SplitText
@@ -108,166 +108,25 @@ export default function AboutSection({ userphoto }) {
                 rootMargin="-100px"
               />
               <div className="flex flex-wrap gap-5 justify-center md:justify-start p-4">
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={0}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={3}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">PHP</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={0.2}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={3}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">PHP</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={0.4}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={3}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">JavaScript</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={0.6}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={3}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">Kotlin</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={0.8}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={3}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">Laravel</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={1}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={5}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">NextJS</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={1.2}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={5}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">TailwindCSS</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={1.4}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={7}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">MySQL</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={1.6}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={7}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">Git</span>
-                  </Magnet>
-                </AnimatedContent>
-                <AnimatedContent
-                  distance={50}
-                  direction="vertical"
-                  reverse={false}
-                  duration={1}
-                  ease="bounce.out"
-                  initialOpacity={0}
-                  animateOpacity
-                  scale={1.1}
-                  threshold={0}
-                  delay={2}
-                >
-                  <Magnet padding={50} disabled={false} magnetStrength={10}>
-                    <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">Docker</span>
-                  </Magnet>
-                </AnimatedContent>
+                {about.skills.map((skill, index) => (
+                  <AnimatedContent
+                    key={index}
+                    distance={50}
+                    direction="vertical"
+                    reverse={false}
+                    duration={1}
+                    ease="bounce.out"
+                    initialOpacity={0}
+                    animateOpacity
+                    scale={1.1}
+                    threshold={0}
+                    delay={0 + (index % 5) * 0.2}
+                  >
+                    <Magnet padding={50} disabled={false} magnetStrength={3}>
+                      <span className="px-3 py-1 md:px-4 md:py-2 rounded-md text-sm md:text-base font-semibold tracking-wide text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] hover:translate-x-[1px] hover:translate-y-[1px] transition-transform duration-200 font-retro-mono">{skill}</span>
+                    </Magnet>
+                  </AnimatedContent>
+                ))}
               </div>
 
               <div className="flex flex-col justify-center items-center xl:items-start mt-5 2xl:mt10 gap-3 px-4">
@@ -299,7 +158,7 @@ export default function AboutSection({ userphoto }) {
                         threshold={0}
                         delay={0.2}
                       >
-                        <a href="" download="Brian_Yudhistira_Resume.pdf"
+                        <a href={about.cv_path} download="Brian_Yudhistira_Resume.pdf"
                           className="w-32 md:w-48 h-auto text-cyan-200 bg-[#0a1b2e] border-2 border-cyan-400 rounded-md px-4 py-2 font-semibold tracking-wider shadow-[6px_6px_0_0_#0e3a5b] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#0e3a5b] transition-all duration-200 text-center font-retro-pixel text-xs md:text-sm">
                           Download CV
                         </a>

@@ -2,7 +2,7 @@ import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 import TextType from "@/Components/Animations/Text/TextType";
 import Magnet from "@/components/Animations/UI/Magnet";
 
-export default function HeroSection() {
+export default function HomeSection({ home , base_url }) {
     return (
         <section
             id="home"
@@ -25,20 +25,20 @@ export default function HeroSection() {
                         >
                             <p>
                                 <span className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
-                                    Hello, I'm
+                                    {home.greeting}
                                 </span>
                             </p>
 
                             <div className="relative leading-none">
                                 <div className="absolute inset-0 blur-sm opacity-50 pointer-events-none">
                                     <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
-                                        Brian Yudhistira
+                                        {home.name}
                                     </p>
                                 </div>
                             </div>
 
                             <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
-                                Brian Yudhistira
+                                {home.name}
                             </p>
                         </AnimatedContent>
 
@@ -55,7 +55,7 @@ export default function HeroSection() {
                             delay={0}
                         >
                             <TextType
-                                text={["Web Developer", "Mobile Developer", "Full Stack Developer"]}
+                                text={home.passions}
                                 typingSpeed={120}
                                 pauseDuration={2000}
                                 showCursor={true}
@@ -77,7 +77,7 @@ export default function HeroSection() {
                             delay={0}
                         >
                             <p className="text-sm sm:text-lg xl:text-xl font-medium mt-2 text-white/90 leading-relaxed transition-all duration-300 font-retro-mono">
-                                I am a Full-Stack Developer specializing in modern web and mobile technologies. My passion is crafting robust, scalable applications from end-to-end, focusing on seamless user experience and delivering practical value through clean, high-performance code.
+                               {home.description}
                             </p>
                         </AnimatedContent>
 
@@ -95,7 +95,7 @@ export default function HeroSection() {
                         >
                             <div className="flex justify-center mt-2 mb-10 xl:mb-0 xl:justify-start gap-2 sm:gap-4 md:gap-6 flex-wrap relative z-50 transition-all duration-300">
                                 <a
-                                    href="https://linkedin.com/in/your-profile"
+                                    href={home.social_media_links.linkedin}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-3 py-2 sm:px-4 sm:py-2 rounded-md text-cyan-200 bg-[#0a1b2e] border-2 border-cyan-400 shadow-[6px_6px_0_0_#0e3a5b] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#0e3a5b] transition-all duration-200 group"
@@ -107,7 +107,7 @@ export default function HeroSection() {
                                 </a>
 
                                 <a
-                                    href="https://github.com/your-username"
+                                    href={home.social_media_links.github}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-3 py-2 sm:px-4 sm:py-2 rounded-md text-cyan-200 bg-[#0a1b2e] border-2 border-cyan-400 shadow-[6px_6px_0_0_#0e3a5b] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#0e3a5b] transition-all duration-200 group"
@@ -119,7 +119,7 @@ export default function HeroSection() {
                                 </a>
 
                                 <a
-                                    href="https://instagram.com/your-username"
+                                    href={home.social_media_links.instagram}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="px-3 py-2 sm:px-4 sm:py-2 rounded-md text-cyan-200 bg-[#0a1b2e] border-2 border-cyan-400 shadow-[6px_6px_0_0_#0e3a5b] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#0e3a5b] transition-all duration-200 group"
@@ -148,7 +148,7 @@ export default function HeroSection() {
                         >
                             <Magnet padding={50} disabled={false} magnetStrength={3}>
                                 <img
-                                    src="/images/portfolio/Hero.svg"
+                                    src={`/${home.logo_path}`}
                                     alt="Home Main Illustration"
                                     className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[450px] hover:scale-110 object-contain transition-transform duration-500"
                                 />

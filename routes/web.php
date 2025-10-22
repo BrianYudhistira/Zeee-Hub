@@ -8,3 +8,5 @@ Route::get('/', function () {
 });
 
 Route::get('/me', [PortfolioController::class, 'index'])->name('portfolio.index');
+
+Route::get('/portfolio/{slug}', [PortfolioController::class, 'getPortfolioBySlug'])->name('portfolio.slug');

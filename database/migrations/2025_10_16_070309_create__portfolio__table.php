@@ -25,6 +25,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('portfolio_user_id')->constrained('portfolio_users')->onDelete('cascade');
             $table->string('greeting', 255);
+            $table->string('name', 255);
+            $table->json('passions')->nullable();
             $table->text('description');
             $table->string('logo_path')->nullable();
             $table->json('social_media_links')->nullable();

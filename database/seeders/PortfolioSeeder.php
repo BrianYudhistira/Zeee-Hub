@@ -9,7 +9,6 @@ use App\Models\About;
 use App\Models\Project;
 use App\Models\Contact;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class PortfolioSeeder extends Seeder
 {
@@ -40,9 +39,11 @@ class PortfolioSeeder extends Seeder
         // Create home data
         $homeData = Home::create([
             'portfolio_user_id' => $portfolioUser->id,
-            'greeting' => 'Hello, I\'m Brian Yudhistira',
-            'description' => 'A passionate Full Stack Developer specializing in Laravel, React, and modern web technologies. I love creating innovative solutions and bringing ideas to life through code.',
-            'logo_path' => 'images/logo.png',
+            'greeting' => 'Hello, I\'m',
+            'name' => 'Brian Yudhistira',
+            'passions' => ['Fullstack Developer', 'Mobile Developer', 'Tech Enthusiast'],
+            'description' => ' I am a Full-Stack Developer specializing in modern web and mobile technologies. My passion is crafting robust, scalable applications from end-to-end, focusing on seamless user experience and delivering practical value through clean, high-performance code.',
+            'logo_path' => 'images/portfolio/Hero.svg',
             'social_media_links' => [
                 'github' => 'https://github.com/BrianYudhistira',
                 'linkedin' => 'https://linkedin.com/in/brian-yudhistira',
@@ -57,14 +58,9 @@ class PortfolioSeeder extends Seeder
         $aboutData = About::create([
             'portfolio_user_id' => $portfolioUser->id,
             'title' => 'About Me',
-            'description' => 'I am a dedicated Full Stack Developer with 3+ years of experience in web development. My journey began with curiosity about how websites work, and it has evolved into a passion for creating seamless user experiences and robust backend systems. I specialize in Laravel for backend development and React for frontend, always staying updated with the latest technologies and best practices.',
-            'image_path' => 'images/profile.jpg',
-            'skills' => [
-                'Frontend' => ['React', 'Vue.js', 'JavaScript', 'TypeScript', 'Tailwind CSS', 'HTML5', 'CSS3'],
-                'Backend' => ['Laravel', 'PHP', 'Node.js', 'Python', 'MySQL', 'PostgreSQL', 'MongoDB'],
-                'Tools' => ['Git', 'Docker', 'VS Code', 'Figma', 'Postman', 'Linux'],
-                'Others' => ['REST APIs', 'GraphQL', 'Redis', 'AWS', 'CI/CD', 'Agile/Scrum'],
-            ],
+            'description' => 'Hi! I\'m Brian Yudhistira, a fresh Informatics Engineering graduate from Universitas Muhammadiyah Malang. I\'m passionate about modern full stack web development using Laravel, Next.js, and Tailwind CSS. As a tech enthusiast with a 3.79 GPA, I love learning, innovating, and creating meaningful digital experiences.',
+            'image_path' => 'portfolio/Profile.png',
+            'skills' => ['PHP', 'JavaScript', 'Kotlin', 'Laravel', 'NextJS', 'TailwindCSS', 'MySQL', 'Git', 'Docker'],
             'cv_path' => 'documents/cv-brian-yudhistira.pdf',
         ]);
 
@@ -129,9 +125,6 @@ class PortfolioSeeder extends Seeder
             'email' => 'brianyudhistira1@gmail.com',
             'phone' => '+62 812-3456-7890',
             'address' => 'Jakarta, Indonesia',
-            'linkedin_url' => 'https://linkedin.com/in/brian-yudhistira',
-            'github_url' => 'https://github.com/BrianYudhistira',
-            'website_url' => 'https://brianyudhistira.com',
         ]);
 
         $this->command->info("Created contact data");

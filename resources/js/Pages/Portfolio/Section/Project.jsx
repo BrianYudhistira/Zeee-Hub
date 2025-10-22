@@ -1,29 +1,32 @@
 import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 
-export default function ProjectSection({ projects }) {
+export default function ProjectSection({ projects , base_url }) {
   if (!projects || projects.length === 0) {
     projects = [
       {
         title: "Project One",
         description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
-        image: "https://placehold.co/600x400",
-        url: "https://github.com/user/project-one",
-        TechStack:["Kotlin", "Jetpack Compose", "Android"]
+        image_path: "https://placehold.co/600x400",
+        demo_url: "https://github.com/user/project-one",
+        source_url: "https://github.com/user/project-one",
+        tech_stack:["Kotlin", "Jetpack Compose", "Android"]
         
       },
       {
         title: "Project Two",
         description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
-        image: "https://placehold.co/600x400",
-        url: "https://github.com/user/project-two",
-        TechStack:["React", "TypeScript", "TailwindCSS"]
+        image_path: "https://placehold.co/600x400",
+        demo_url: "https://github.com/user/project-two",
+        source_url: "https://github.com/user/project-two",
+        tech_stack:["React", "TypeScript", "TailwindCSS"]
       },
       {
         title: "Project Three",
         description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.",
-        image: "https://placehold.co/600x400",
-        url: "https://github.com/user/project-three",
-        TechStack:["Next.js", "TypeScript", "TailwindCSS"]
+        image_path: "https://placehold.co/600x400",
+        demo_url: "https://github.com/user/project-three",
+        source_url: "https://github.com/user/project-three",
+        tech_stack:["Next.js", "TypeScript", "TailwindCSS"]
       },
     ];
   }
@@ -73,11 +76,11 @@ export default function ProjectSection({ projects }) {
                     <div className='relative mb-4'>
                       <div className='aspect-[3/2] w-full overflow-hidden rounded-xl ring-1 ring-gray-600/40 group-hover:ring-cyan-400/40 transition-all duration-500'>
                         <img 
-                          src={project.image} 
-                          alt={project.title} 
-                          width={600} 
-                          height={400} 
-                          className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105' 
+                          src={`/storage/${project.image_path}`}
+                          alt={project.title}
+                          width={600}
+                          height={400}
+                          className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
                         />
                       </div>
                       <div className='absolute inset-0 rounded-2xl bg-gradient-to-t from-gray-900/40 via-transparent to-transparent pointer-events-none'></div>
@@ -91,7 +94,7 @@ export default function ProjectSection({ projects }) {
                       {project.description}
                     </p>
                     <div className='mt-4 flex flex-wrap gap-2'>
-                      {project.TechStack.map((tech, i) => (
+                      {project.tech_stack.map((tech, i) => (
                         <span 
                           key={i} 
                           className='text-[10px] md:text-[11px] uppercase tracking-wide font-medium px-2 py-1 rounded-md text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] transition-colors duration-300 font-retro-mono'
@@ -102,7 +105,7 @@ export default function ProjectSection({ projects }) {
                     </div>
                     <div className='mt-5 flex items-center justify-between text-xs'>
                       <a 
-                        href={project.url} 
+                        href={project.source_url} 
                         target='_blank' 
                         rel='noopener noreferrer' 
                         className='inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 transition-colors font-retro-mono'
@@ -113,7 +116,13 @@ export default function ProjectSection({ projects }) {
                           <path d='M7 7h10v10'/>
                         </svg>
                       </a>
-                      <span className='opacity-0 group-hover:opacity-100 text-cyan-300 transition-opacity duration-500 font-retro-mono'>Explore →</span>
+                      <a 
+                      href={project.demo_url}
+                      target='_blank'
+                      rel='noopener noreferrer'>
+                        <span className='opacity-0 group-hover:opacity-100 text-cyan-300 transition-opacity duration-500 font-retro-mono'>Explore →</span>
+                      </a>
+                      
                     </div>
 
                     {/* Foreground subtle overlay */}

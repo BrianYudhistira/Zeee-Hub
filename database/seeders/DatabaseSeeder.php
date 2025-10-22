@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'brianyudhistira1@gmail.com',
             'password' => bcrypt('password'),
+            'photo_path' => null,
+            'role' => 'admin',
         ]);
 
         // Seed portfolio data

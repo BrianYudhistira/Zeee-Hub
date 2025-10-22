@@ -7,23 +7,27 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     public function login( Request $request )
     {
         $credentials = $request->only( 'email', 'password' );
+        
         if (!Auth::attempt( $credentials ) ) {
             return response()->json( [ 'message' => 'Invalid credentials' ], 401 );
         }
 
         $user = Auth::user();
-        $token = $user->createToken( 'api_token' )->plainTextToken;
+        
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json( [ 
             'message' => 'Login successful', 
             'user' => $user,
-            'token' => $token 
+            'access_token' => $token,
+            'token_type' => 'Bearer'
         ], 200 );
     }
 
@@ -45,20 +49,58 @@ class AuthController extends Controller
 
     public function signin( Request $request )
     {
-        $userdata = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|max:255',
             'password' => 'required|string|min:6',
-        ]);
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
 
-        // Create the user
-        $user = User::create([
-            'name' => $userdata['name'],
-            'email' => $userdata['email'],
-            'password' => bcrypt($userdata['password']),
-        ]);
+        // Basic validation (will return 422 JSON automatically on failure)
+        $userdata = $request->validate($rules);
 
-        return response()->json( [ 'message' => 'User registered successfully', 'user' => $user ], 201 );
+        // Pre-check uniqueness: check email first, return immediately if duplicate
+        if (User::where('email', $userdata['email'])->exists()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => ['email' => ['The email has already been taken.']],
+            ], 422);
+        }
+        if (User::where('name', $userdata['name'])->exists()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => ['name' => ['The name has already been taken.']],
+            ], 422);
+        }
+
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+            $photoPath = $file->storeAs('users', $filename, 'public');
+        }
+
+        try{
+            $user = User::create([
+                'name' => $userdata['name'],
+                'email' => $userdata['email'],
+                'photo_path' => $photoPath,
+                'password' => bcrypt($userdata['password']),
+            ]);
+            
+            // Create token untuk user baru
+            $token = $user->createToken('auth_token')->plainTextToken;
+            
+        }catch (\Exception $e){
+            return response()->json([ 'message' => 'Registration failed', 'error' => $e->getMessage() ], 500 );
+        }
+
+        return response()->json([ 
+            'message' => 'User registered successfully', 
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer'
+        ], 201 );
     }
 
     public function dropUser( Request $request )
@@ -68,11 +110,9 @@ class AuthController extends Controller
             return response()->json([ 'message' => 'Unauthenticated' ], 401);
         }
 
-        // Revoke all personal access tokens (if using Sanctum)
         if (method_exists($user, 'tokens')) {
             $user->tokens()->delete();
         } else {
-            // try to delete current access token as fallback (delete by id)
             $token = $request->user()->currentAccessToken();
             if ($token && isset($token->id)) {
                 DB::table('personal_access_tokens')->where('id', $token->id)->delete();
@@ -87,22 +127,16 @@ class AuthController extends Controller
     public function deleteUserById(Request $request, $id)
     {
         $auth = $request->user();
-        if (! $auth) {
+
+        if(! $auth) {
             return response()->json([ 'message' => 'Unauthenticated' ], 401);
         }
-
-        // Basic admin check: assumes users table has an `is_admin` boolean column.
-        if (empty($auth->is_admin)) {
+        if ($auth->role !== 'admin') {
             return response()->json([ 'message' => 'Forbidden' ], 403);
         }
-
         $user = User::find($id);
         if (! $user) {
             return response()->json([ 'message' => 'User not found' ], 404);
-        }
-
-        if (method_exists($user, 'tokens')) {
-            $user->tokens()->delete();
         }
 
         $user->delete();

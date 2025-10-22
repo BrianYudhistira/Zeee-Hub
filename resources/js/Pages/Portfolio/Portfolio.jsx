@@ -10,9 +10,26 @@ import Footer from "@/Components/Footer";
 import Particles from "@/Components/Animations/Background/Particles";
 import DarkVeil from "@/Components/Animations/Background/DarkVeil";
 
-export default function Portfolio( {userphoto} ) {
+export default function Portfolio( { portfolio } ) {
     const [isTop, setIsTop] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
+
+    useEffect(() => {
+        console.log("📦 Portfolio data received from Laravel:", portfolio);
+
+        if (!portfolio) {
+            console.warn("⚠️ Portfolio data is null or undefined!");
+            return;
+        }
+
+        console.group("🔍 Portfolio Data Check");
+        console.log("🏠 Home:", portfolio.home);
+        console.log("👤 About:", portfolio.about);
+        console.log("🧩 Projects:", portfolio.projects);
+        console.log("📞 Contacts:", portfolio.contacts);
+        console.groupEnd();
+    }, [portfolio]);
+
 
     useEffect(() => {
         const sections = document.querySelectorAll("section");
@@ -135,11 +152,11 @@ export default function Portfolio( {userphoto} ) {
                     </div>
                 </nav>
                 <div className="relative z-10">
-                <HomeSection/>
-                <AboutSection userphoto={userphoto}/>
-                <ProjectsSection/>
-                <ContactSection/>
-                <Footer/>
+                <HomeSection home={portfolio.home} />
+                <AboutSection about={portfolio.about} />
+                <ProjectsSection projects={portfolio.projects} />
+                <ContactSection contacts={portfolio.contacts} sosmedLinks={portfolio.home.social_media_links} />
+                <Footer />
                 </div>
             </div>
         </>
