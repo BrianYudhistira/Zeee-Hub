@@ -22,9 +22,13 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'username',
         'password',
         'photo_path',
         'role',
+        'last_login_at',
+        'ip_address',
+        'location',
     ];
 
     /**
@@ -38,6 +42,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'photo_url',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -47,6 +60,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -56,5 +70,28 @@ class User extends Authenticatable
     public function portfolioUser(): HasOne
     {
         return $this->hasOne(PortfolioUser::class);
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(UserLog::class);
+    }
+
+    /**
+     * Get the full URL for the user's photo.
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (!$this->photo_path) {
+            return null;
+        }
+
+        // Jika sudah berupa URL lengkap, return as is
+        if (str_starts_with($this->photo_path, 'http')) {
+            return $this->photo_path;
+        }
+
+        // Convert path relatif ke URL absolut
+        return asset('storage/' . $this->photo_path);
     }
 }

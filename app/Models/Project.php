@@ -35,28 +35,4 @@ class Project extends Model
     {
         return $this->belongsTo(PortfolioUser::class);
     }
-
-    /**
-     * Get the image URL attribute.
-     */
-    public function getImageUrlAttribute(): ?string
-    {
-        return $this->image_path ? asset('storage/' . $this->image_path) : null;
-    }
-
-    /**
-     * Scope a query to only include featured projects.
-     */
-    public function scopeFeatured($query)
-    {
-        return $query->where('is_featured', true);
-    }
-
-    /**
-     * Scope a query to order projects by sort order.
-     */
-    public function scopeOrdered($query)
-    {
-        return $query->orderBy('sort_order')->orderBy('created_at', 'desc');
-    }
 }

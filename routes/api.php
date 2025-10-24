@@ -15,6 +15,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/users/{id}', [AuthController::class, 'deleteUserById'])->name('user.delete');
     Route::get('/portfolio', [PortfolioController::class, 'getPortfolioByUserId'])->name('portfolio');
 
+    Route::post('/user/update', [AuthController::class, 'editUser'])->name('user.edit');
+
     Route::post('/portfolio/update_home', [PortfolioController::class, 'editHome'])->name('portfolio.home.edit');
     Route::post('/portfolio/update_about', [PortfolioController::class, 'editAbout'])->name('portfolio.about.edit');
     Route::post('/portfolio/update_projects', [PortfolioController::class, 'editProjects'])->name('portfolio.projects.edit');
