@@ -21,8 +21,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/portfolio/update_about', [PortfolioController::class, 'editAbout'])->name('portfolio.about.edit');
     Route::post('/portfolio/update_projects', [PortfolioController::class, 'editProjects'])->name('portfolio.projects.edit');
     Route::post('/portfolio/update_contacts', [PortfolioController::class, 'editContacts'])->name('portfolio.contacts.edit');
+
+    Route::post('/email/send_verification', [App\Http\Controllers\API\EmailVerificationController::class, 'send'])->name('email.send_verification');
 });
 
-// Token-Based API Routes (Tanpa Session/CSRF untuk Mobile & Next.js)
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/signin', [AuthController::class, 'signin'])->name('signin');

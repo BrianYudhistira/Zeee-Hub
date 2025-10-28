@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
@@ -169,11 +170,24 @@ class AuthController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|max:255',
             'username' => 'sometimes|required|string|max:255',
-            'password' => 'sometimes|required|string|min:6',
+            'bio' => 'sometimes|nullable|string|max:1000',
+            'status' => 'sometimes|nullable|string|max:255',
             'photo' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
+        
+        $passwordRules = 'sometimes|required|string|min:6';
 
         $userdata = $request->validate($rules);
+        $userdataPassword = $request->validate([
+            'password' => $passwordRules,
+        ]);
+
+        if (!Hash::check($userdataPassword['password'], $user->password)) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => ['password' => ['The password is incorrect.']],
+            ], 422);
+        }
 
         if (isset($userdata['email']) && $userdata['email'] !== $user->email) {
             if (User::where('email', $userdata['email'])->exists()) {
@@ -201,10 +215,6 @@ class AuthController extends Controller
             $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
             $photoPath = $file->storeAs('users', $filename, 'public');
             $userdata['photo_path'] = $photoPath;
-        }
-
-        if (isset($userdata['password'])) {
-            $userdata['password'] = bcrypt($userdata['password']);
         }
 
         $user->update($userdata);

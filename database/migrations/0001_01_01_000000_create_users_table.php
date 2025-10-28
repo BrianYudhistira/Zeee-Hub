@@ -17,10 +17,11 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('photo_path')->nullable();
+            $table->text('bio')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('role', 50)->default('user');
-            $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
+            $table->enum('status', ['active', 'dnd', 'banned'])->default('active');
             $table->timestamp('last_login_at')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->string('location')->nullable();

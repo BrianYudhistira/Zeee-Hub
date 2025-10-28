@@ -10,3 +10,8 @@ Route::get('/', function () {
 Route::get('/me', [PortfolioController::class, 'index'])->name('portfolio.index');
 
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'getPortfolioBySlug'])->name('portfolio.slug');
+Route::get('/test', function(){
+    return view('emails.verify', ['url' => 'https://example.com/verify?token=123456', 'name' => 'John Doe']);
+});
+
+Route::get('/verify-email/{id}/{hash}', [App\Http\Controllers\API\EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('signed');
