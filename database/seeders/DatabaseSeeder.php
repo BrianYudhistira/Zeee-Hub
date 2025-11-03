@@ -23,6 +23,14 @@ class DatabaseSeeder extends Seeder
             'photo_path' => null,
             'role' => 'admin',
         ]);
+        User::factory()->create([
+            'name' => 'test',
+            'email' => 'test@mail.com',
+            'username' => 'testuser',
+            'password' => bcrypt('password'),
+            'photo_path' => null,
+            'role' => 'user',
+        ]);
 
         // Seed portfolio data
         $this->call(PortfolioSeeder::class);

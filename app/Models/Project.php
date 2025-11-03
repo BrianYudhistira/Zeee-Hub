@@ -28,11 +28,23 @@ class Project extends Model
         'sort_order' => 'integer',
     ];
 
+    protected $appends = [
+        'photo_url',
+    ];
+
     /**
      * Get the portfolio user that owns the project.
      */
     public function portfolioUser(): BelongsTo
     {
         return $this->belongsTo(PortfolioUser::class);
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (!$this->image_path) {
+            return null;
+        }
+        return asset('storage/' . $this->image_path);
     }
 }

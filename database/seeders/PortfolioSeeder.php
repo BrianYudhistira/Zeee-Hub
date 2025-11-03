@@ -57,7 +57,6 @@ class PortfolioSeeder extends Seeder
         // Create about data
         $aboutData = About::create([
             'portfolio_user_id' => $portfolioUser->id,
-            'title' => 'About Me',
             'description' => 'Hi! I\'m Brian Yudhistira, a fresh Informatics Engineering graduate from Universitas Muhammadiyah Malang. I\'m passionate about modern full stack web development using Laravel, Next.js, and Tailwind CSS. As a tech enthusiast with a 3.79 GPA, I love learning, innovating, and creating meaningful digital experiences.',
             'image_path' => 'portfolio/Profile.png',
             'skills' => ['PHP', 'JavaScript', 'Kotlin', 'Laravel', 'NextJS', 'TailwindCSS', 'MySQL', 'Git', 'Docker'],

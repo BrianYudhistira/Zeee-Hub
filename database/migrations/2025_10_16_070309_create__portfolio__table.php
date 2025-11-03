@@ -36,7 +36,7 @@ return new class extends Migration
         Schema::create('about', function (Blueprint $table) {
             $table->id();
             $table->foreignId('portfolio_user_id')->constrained('portfolio_users')->onDelete('cascade');
-            $table->string('title', 255);
+            // $table->string('title', 255);
             $table->text('description');
             $table->string('image_path')->nullable();
             $table->json('skills');
@@ -64,9 +64,9 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone', 20)->nullable();
             $table->text('address')->nullable();
-            $table->string('linkedin_url')->nullable();
-            $table->string('github_url')->nullable();
-            $table->string('website_url')->nullable();
+            // $table->string('linkedin_url')->nullable();
+            // $table->string('github_url')->nullable();
+            // $table->string('website_url')->nullable();
             $table->timestamps();
         }); 
     }
