@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
+use App\Services\PortfolioService;
+use App\Models\PortfolioSetting;
+use App\Http\Requests\Portfolio\UpdatePortfolioRequest;
 
 class PortfolioController
 {
+    public function __construct(
+        protected PortfolioService $portfolioService
+    ) {}
     public function getPortfolioByUserId(Request $request)
     {
         $user = $request->user();
@@ -19,247 +22,84 @@ class PortfolioController
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Ensure portfolioUser relation exists and load all expected relations
-        $portfolioRelation = $user->portfolioUser();
-        if (! $portfolioRelation) {
-            return response()->json(['message' => 'Portfolio not found'], 404);
-        }
+        $portfolio = $this->portfolioService->getPortfolio($user);
 
-        $portfolio = $portfolioRelation->with(['home', 'about', 'projects', 'contacts'])->first();
-
-        if (! $portfolio) {
+        if (!$portfolio) {
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
         return response()->json($portfolio, 200);
     }
 
-    public function editportfolio(Request $request)
-    {
-        if ($request->hasFile('about_image') || $request->hasFile('about_cv')) {
-            Log::info('Handling form-data request');
-            return $this->handleFormData($request);
-        } else {
-            Log::info('Handling JSON request');
-            return $this->handleJsonData($request);
-        }
-    }
-
-    public function handleFormData(Request $request)
+    public function getLogo(Request $request)
     {
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $request->validate([
-            'about_image' => 'nullable|image|max:2048', // 2MB
-            'about_cv' => 'nullable|mimes:pdf,doc,docx|max:5120', // 5MB
-        ]);
+        // Get 'logo' setting from portfolio settings
+        $logoSetting = PortfolioSetting::where('name', 'logo')->first();
 
-        $portfolio_data = [
-            'slug' => $request->input('slug'),
-            'theme' => $request->input('theme'),
-            'is_active' => $request->input('is_active') === '1',
-            'sections' => json_decode($request->input('sections'), true),
-            'home' => json_decode($request->input('home'), true),
-            'about' => json_decode($request->input('about'), true),
-            'projects' => json_decode($request->input('projects'), true),
-            'contacts' => json_decode($request->input('contacts'), true),
-        ];
-
-        if ($request->hasFile('about_image')) {
-            $imagePath = $request->file('about_image')->storeAs('portfolios/images', Str::uuid() . '.' . $request->file('about_image')->getClientOriginalExtension(), 'public');
-            $portfolio_data['about']['image_path'] = $imagePath;
+        if (!$logoSetting) {
+            return response()->json(['message' => 'Logo setting not found'], 404);
         }
 
-        if ($request->hasFile('about_cv')) {
-            $cvPath = $request->file('about_cv')->storeAs('portfolios/cvs', Str::uuid() . '.' . $request->file('about_cv')->getClientOriginalExtension(), 'public');
-            $portfolio_data['about']['cv_path'] = $cvPath;
+        return response()->json([
+            'id' => $logoSetting->id,
+            'name' => $logoSetting->name,
+            'path' => $logoSetting->path,
+            'value' => $logoSetting->value,
+            'file_url' => $logoSetting->file_url // Full URL from accessor
+        ], 200);
+    }
+
+    public function editPortfolioFormData(UpdatePortfolioRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        $validator = Validator::make($portfolio_data, [
-            'slug' => 'nullable|string|max:255|unique:portfolio_users,slug,' . ($user->portfolioUser ? $user->portfolioUser->id : 'NULL'),
-            'theme' => 'nullable|string|max:50',
-            'is_active' => 'nullable|boolean',
-            'sections' => 'nullable|array',
-            'sections.*' => 'string|in:home,about,projects,contact',
-            'home.greeting' => 'nullable|string|max:255',
-            'home.name' => 'nullable|string|max:255',
-            'home.passions' => 'nullable|array',
-            'home.passions.*' => 'string|max:100',
-            'home.description' => 'nullable|string',
-            'home.logo_path' => 'nullable|string|max:500',
-            'home.social_media_links' => 'nullable|array',
-            'home.social_media_links.github' => 'nullable|url|max:500',
-            'home.social_media_links.twitter' => 'nullable|url|max:500',
-            'home.social_media_links.linkedin' => 'nullable|url|max:500',
-            'home.social_media_links.instagram' => 'nullable|url|max:500',
-            'about.title' => 'nullable|string|max:255',
-            'about.description' => 'nullable|string',
-            'about.image_path' => 'nullable|string|max:500',
-            'about.skills' => 'nullable|array',
-            'about.skills.*' => 'string|max:100',
-            'about.cv_path' => 'nullable|string|max:500',
-            'projects' => 'nullable|array',
-            'projects.*.id' => 'nullable|integer',
-            'projects.*.title' => 'required_with:projects.*|string|max:255',
-            'projects.*.description' => 'nullable|string',
-            'projects.*.tech_stack' => 'nullable|array',
-            'projects.*.tech_stack.*' => 'string|max:100',
-            'projects.*.image_path' => 'nullable|string|max:500',
-            'projects.*.demo_url' => 'nullable|url|max:500',
-            'projects.*.source_url' => 'nullable|url|max:500',
-            'projects.*.is_featured' => 'nullable|boolean',
-            'projects.*.sort_order' => 'nullable|integer|min:1',
-            'contacts.email' => 'nullable|email|max:255',
-            'contacts.phone' => 'nullable|string|max:20',
-            'contacts.address' => 'nullable|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
-        }
-
-        $portfolio = $user->portfolioUser()->first();
 
         try {
-            DB::beginTransaction();
-
-            if (! $portfolio) {
-                // Create new portfolio
-                $portfolio = $user->portfolioUser()->create([
-                    'sections' => $portfolio_data['sections'] ?? ['home', 'about', 'projects', 'contact'],
-                    'theme' => $portfolio_data['theme'] ?? 'default',
-                    'slug' => $portfolio_data['slug'] ?? Str::slug($user->name) . '-' . Str::random(5),
-                    'is_active' => $portfolio_data['is_active'] ?? true,
-                ]);
-
-                // Create home section
-                $portfolio->home()->create([
-                    'greeting' => $portfolio_data['home']['greeting'] ?? 'Hello, I am',
-                    'name' => $portfolio_data['home']['name'] ?? $user->name,
-                    'passions' => $portfolio_data['home']['passions'] ?? [],
-                    'description' => $portfolio_data['home']['description'] ?? null,
-                    'logo_path' => $portfolio_data['home']['logo_path'] ?? null,
-                    'social_media_links' => $portfolio_data['home']['social_media_links'] ?? [],
-                ]);
-
-                // Create about section
-                $portfolio->about()->create([
-                    'description' => $portfolio_data['about']['description'] ?? null,
-                    'image_path' => $portfolio_data['about']['image_path'] ?? null,
-                    'skills' => $portfolio_data['about']['skills'] ?? [],
-                    'cv_path' => $portfolio_data['about']['cv_path'] ?? null,
-                ]);
-
-                // Create contacts section
-                $portfolio->contacts()->create([
-                    'email' => $portfolio_data['contacts']['email'] ?? $user->email,
-                    'phone' => $portfolio_data['contacts']['phone'] ?? null,
-                    'address' => $portfolio_data['contacts']['address'] ?? null,
-                    
-                ]);
-
-                // Create projects if provided
-                if (isset($portfolio_data['projects']) && is_array($portfolio_data['projects'])) {
-                    foreach ($portfolio_data['projects'] as $projectData) {
-                        if (!empty($projectData['title'])) {
-                            $portfolio->projects()->create([
-                                'title' => $projectData['title'],
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                        }
-                    }
-                }
-
-                DB::commit();
-
-                $portfolio->load(['home', 'about', 'projects', 'contacts']);
-
-                return response()->json([
-                    'message' => 'Portfolio created successfully',
-                    'data' => $portfolio
-                ], 201);
+            // Get validated data
+            $data = $request->validated();
+            
+            // Decode JSON strings from form-data (if they are strings)
+            if (isset($data['sections']) && is_string($data['sections'])) {
+                $data['sections'] = json_decode($data['sections'], true);
+            }
+            if (isset($data['home']) && is_string($data['home'])) {
+                $data['home'] = json_decode($data['home'], true);
+            }
+            if (isset($data['about']) && is_string($data['about'])) {
+                $data['about'] = json_decode($data['about'], true);
+            }
+            if (isset($data['projects']) && is_string($data['projects'])) {
+                $data['projects'] = json_decode($data['projects'], true);
+            }
+            if (isset($data['contacts']) && is_string($data['contacts'])) {
+                $data['contacts'] = json_decode($data['contacts'], true);
             }
 
-            $portfolio->update([
-                'sections' => $portfolio_data['sections'] ?? $portfolio->sections,
-                'theme' => $portfolio_data['theme'] ?? $portfolio->theme,
-                'slug' => $portfolio_data['slug'] ?? $portfolio->slug,
-                'is_active' => $portfolio_data['is_active'] ?? $portfolio->is_active,
-            ]);
+            $files = [
+                'about_image' => $request->file('about_image'),
+                'about_cv' => $request->file('about_cv'),
+                'project_images' => $request->file('project_images'),
+                'home_logo' => $request->file('home_logo'),
+            ];
 
-            if (isset($portfolio_data['home']) && $portfolio->home) {
-                $portfolio->home->update($portfolio_data['home']);
-            }
-
-            if (isset($portfolio_data['about']) && $portfolio->about) {
-                $portfolio->about->update($portfolio_data['about']);
-            }
-
-            if (isset($portfolio_data['projects'])) {
-                $projectIds = [];
-                
-                foreach ($portfolio_data['projects'] as $projectData) {
-                    if (isset($projectData['id']) && $projectData['id']) {
-                        $project = $portfolio->projects()->find($projectData['id']);
-                        if ($project) {
-                            $project->update([
-                                'title' => $projectData['title'] ?? null,
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                            $projectIds[] = $project->id;
-                        }
-                    } else {
-                        if (!empty($projectData['title'])) {
-                            $newProject = $portfolio->projects()->create([
-                                'title' => $projectData['title'],
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                            $projectIds[] = $newProject->id;
-                        }
-                    }
-                }
-
-                $portfolio->projects()->whereNotIn('id', $projectIds)->delete();
-            } else {
-                $portfolio->projects()->delete();
-            }
-
-            if (isset($portfolio_data['contacts']) && $portfolio->contacts) {
-                $portfolio->contacts->update($portfolio_data['contacts']);
-            }
-
-            DB::commit();
-
-            $portfolio->load(['home', 'about', 'projects', 'contacts']);
+            $portfolio = $this->portfolioService->createOrUpdatePortfolio(
+                $user,
+                $data,
+                $files
+            );
 
             return response()->json([
                 'message' => 'Portfolio updated successfully',
                 'data' => $portfolio
             ], 200);
-
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'message' => 'Failed to update portfolio',
                 'error' => $e->getMessage()
@@ -267,198 +107,25 @@ class PortfolioController
         }
     }
 
-    public function handleJsonData(Request $request)
+    public function editPortfolioJsonData(UpdatePortfolioRequest $request)
     {
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $portfolio = $user->portfolioUser()->first();
-
-        $portfolio_data = $request->validate([
-            'sections' => 'nullable|array',
-            'sections.*' => 'string|in:home,about,projects,contact',
-            'theme' => 'nullable|string|max:50',
-            'slug' => 'nullable|string|max:255|unique:portfolio_users,slug,' . ($portfolio ? $portfolio->id : 'NULL'),
-            'is_active' => 'nullable|boolean',
-
-            'home.greeting' => 'nullable|string|max:255',
-            'home.name' => 'nullable|string|max:255',
-            'home.passions' => 'nullable|array',
-            'home.passions.*' => 'string|max:100',
-            'home.description' => 'nullable|string',
-            'home.logo_path' => 'nullable|string|max:500',
-            'home.social_media_links' => 'nullable|array',
-            'home.social_media_links.github' => 'nullable|url|max:500',
-            'home.social_media_links.twitter' => 'nullable|url|max:500',
-            'home.social_media_links.linkedin' => 'nullable|url|max:500',
-            'home.social_media_links.instagram' => 'nullable|url|max:500',
-            
-            'about.title' => 'nullable|string|max:255',
-            'about.description' => 'nullable|string',
-            'about.image_path' => 'nullable|string|max:500',
-            'about.skills' => 'nullable|array',
-            'about.skills.*' => 'string|max:100',
-            'about.cv_path' => 'nullable|string|max:500',
-            
-            'projects' => 'nullable|array',
-            'projects.*.id' => 'nullable|integer',
-            'projects.*.title' => 'required_with:projects.*|string|max:255',
-            'projects.*.description' => 'nullable|string',
-            'projects.*.tech_stack' => 'nullable|array',
-            'projects.*.tech_stack.*' => 'string|max:100',
-            'projects.*.image_file' => 'nullable|string|max:500',
-            'projects.*.demo_url' => 'nullable|url|max:500',
-            'projects.*.source_url' => 'nullable|url|max:500',
-            'projects.*.is_featured' => 'nullable|boolean',
-            'projects.*.sort_order' => 'nullable|integer|min:1',
-            
-            'contacts.email' => 'nullable|email|max:255',
-            'contacts.phone' => 'nullable|string|max:20',
-            'contacts.address' => 'nullable|string|max:500',
-            'contacts.linkedin_url' => 'nullable|url|max:500',
-            'contacts.github_url' => 'nullable|url|max:500',
-            'contacts.website_url' => 'nullable|url|max:500',
-        ]);
-
         try {
-            DB::beginTransaction();
-
-            if (! $portfolio) {
-                // Create new portfolio
-                $portfolio = $user->portfolioUser()->create([
-                    'sections' => $portfolio_data['sections'] ?? ['home', 'about', 'projects', 'contact'],
-                    'theme' => $portfolio_data['theme'] ?? 'default',
-                    'slug' => $portfolio_data['slug'] ?? Str::slug($user->name) . '-' . Str::random(5),
-                    'is_active' => $portfolio_data['is_active'] ?? true,
-                ]);
-
-                // Create home section
-                $portfolio->home()->create([
-                    'greeting' => $portfolio_data['home']['greeting'] ?? 'Hello, I am',
-                    'name' => $portfolio_data['home']['name'] ?? $user->name,
-                    'passions' => $portfolio_data['home']['passions'] ?? [],
-                    'description' => $portfolio_data['home']['description'] ?? null,
-                    'logo_path' => $portfolio_data['home']['logo_path'] ?? null,
-                    'social_media_links' => $portfolio_data['home']['social_media_links'] ?? [],
-                ]);
-
-                // Create about section
-                $portfolio->about()->create([
-                    'description' => $portfolio_data['about']['description'] ?? null,
-                    'image_path' => $portfolio_data['about']['image_path'] ?? null,
-                    'skills' => $portfolio_data['about']['skills'] ?? [],
-                    'cv_path' => $portfolio_data['about']['cv_path'] ?? null,
-                ]);
-
-                // Create contacts section
-                $portfolio->contacts()->create([
-                    'email' => $portfolio_data['contacts']['email'] ?? $user->email,
-                    'phone' => $portfolio_data['contacts']['phone'] ?? null,
-                    'address' => $portfolio_data['contacts']['address'] ?? null,
-                    
-                ]);
-
-                // Create projects if provided
-                if (isset($portfolio_data['projects']) && is_array($portfolio_data['projects'])) {
-                    foreach ($portfolio_data['projects'] as $projectData) {
-                        if (!empty($projectData['title'])) {
-                            $portfolio->projects()->create([
-                                'title' => $projectData['title'],
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                        }
-                    }
-                }
-
-                DB::commit();
-
-                $portfolio->load(['home', 'about', 'projects', 'contacts']);
-
-                return response()->json([
-                    'message' => 'Portfolio created successfully',
-                    'data' => $portfolio
-                ], 201);
-            }
-
-            $portfolio->update([
-                'sections' => $portfolio_data['sections'] ?? $portfolio->sections,
-                'theme' => $portfolio_data['theme'] ?? $portfolio->theme,
-                'slug' => $portfolio_data['slug'] ?? $portfolio->slug,
-                'is_active' => $portfolio_data['is_active'] ?? $portfolio->is_active,
-            ]);
-
-            if (isset($portfolio_data['home']) && $portfolio->home) {
-                $portfolio->home->update($portfolio_data['home']);
-            }
-
-            if (isset($portfolio_data['about']) && $portfolio->about) {
-                $portfolio->about->update($portfolio_data['about']);
-            }
-
-            if (isset($portfolio_data['projects'])) {
-                $projectIds = [];
-                
-                foreach ($portfolio_data['projects'] as $projectData) {
-                    if (isset($projectData['id']) && $projectData['id']) {
-                        $project = $portfolio->projects()->find($projectData['id']);
-                        if ($project) {
-                            $project->update([
-                                'title' => $projectData['title'] ?? null,
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                            $projectIds[] = $project->id;
-                        }
-                    } else {
-                        if (!empty($projectData['title'])) {
-                            $newProject = $portfolio->projects()->create([
-                                'title' => $projectData['title'],
-                                'description' => $projectData['description'] ?? null,
-                                'tech_stack' => $projectData['tech_stack'] ?? [],
-                                'image_path' => $projectData['image_path'] ?? null,
-                                'demo_url' => $projectData['demo_url'] ?? null,
-                                'source_url' => $projectData['source_url'] ?? null,
-                                'is_featured' => $projectData['is_featured'] ?? false,
-                                'sort_order' => $projectData['sort_order'] ?? 999,
-                            ]);
-                            $projectIds[] = $newProject->id;
-                        }
-                    }
-                }
-
-                $portfolio->projects()->whereNotIn('id', $projectIds)->delete();
-            } else {
-                $portfolio->projects()->delete();
-            }
-
-            if (isset($portfolio_data['contacts']) && $portfolio->contacts) {
-                $portfolio->contacts->update($portfolio_data['contacts']);
-            }
-
-            DB::commit();
-
-            $portfolio->load(['home', 'about', 'projects', 'contacts']);
+            $portfolio = $this->portfolioService->createOrUpdatePortfolio(
+                $user,
+                $request->validated(),
+                []
+            );
 
             return response()->json([
                 'message' => 'Portfolio updated successfully',
                 'data' => $portfolio
             ], 200);
-
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'message' => 'Failed to update portfolio',
                 'error' => $e->getMessage()
@@ -477,7 +144,7 @@ class PortfolioController
             'password' => 'required|string',
         ]);
         
-        if(!Hash::check($password['password'], $user->password)){
+        if (!Hash::check($password['password'], $user->password)) {
             return response()->json(['message' => 'Incorrect password'], 403);
         }
 
@@ -486,7 +153,7 @@ class PortfolioController
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
-        $portfolio->delete();
+        $this->portfolioService->deletePortfolio($portfolio);
 
         return response()->json(['message' => 'Portfolio deleted successfully'], 200);
     }
@@ -617,16 +284,13 @@ class PortfolioController
         return response()->json(['message' => 'About section updated successfully'], 200);
     }
 
-    public function editProjects(Request $request)
+    public function editProjectsOrder(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string',
-            'description' => 'required|string',
-            'image'=>'required|image|max:2048',
-            'demo_link' => 'nullable|url',
-            'repo_link' => 'nullable|url',
-            'techstacks' => 'required|array',
-            'techstacks.*' => 'string',
+        $portfolio_data = $request->validate([
+            'projects' => 'required|array',
+            'projects.*.id' => 'required|integer|exists:projects,id',
+            'projects.*.sort_order' => 'nullable|integer',
+            'projects.*.is_featured' => 'nullable|boolean',
         ]);
 
         $user = $request->user();
@@ -639,25 +303,22 @@ class PortfolioController
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
-        $imagePath = $portfolio->projects->image_path;
+        $portfolio_id = [];
 
-        if ($request->hasFile('image')) {
-            if ($portfolio->projects->image_path) {
-                Storage::disk('public')->delete($portfolio->projects->image_path);
+        foreach ($portfolio_data['projects'] as $project) {
+            // Cari proyek berdasarkan ID di koleksi projects
+            $existingProject = $portfolio->projects()->where('id', $project['id'])->first();
+
+            if ($existingProject) {
+                $existingProject->update([
+                    'sort_order' => $project['sort_order'] ?? 999,
+                    'is_featured' => $project['is_featured'] ?? false,
+                ]);
+                $portfolio_id[] = $project['id'];
             }
-            $file = $request->file('image');
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $imagePath = $file->storeAs("project_images/{$user->id}", $filename, 'public');
         }
 
-        $portfolio->projects()->update([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'image_path' => $imagePath,
-            'demo_link' => $request->input('demo_link'),
-            'repo_link' => $request->input('repo_link'),
-            'techstacks' => json_encode($request->input('techstacks')),
-        ]);
+        return response()->json(['updated_projects' => $portfolio_id], 200);
     }
 
     public function editContacts(Request $request)

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Project extends Model
 {
@@ -29,7 +30,7 @@ class Project extends Model
     ];
 
     protected $appends = [
-        'photo_url',
+        'image_url',
     ];
 
     /**
@@ -40,11 +41,12 @@ class Project extends Model
         return $this->belongsTo(PortfolioUser::class);
     }
 
-    public function getPhotoUrlAttribute(): ?string
+    public function getImageUrlAttribute(): ?string
     {
-        if (!$this->image_path) {
+        if (empty($this->image_path)) {
             return null;
         }
-        return asset('storage/' . $this->image_path);
+
+        return asset('storage/' . ltrim($this->image_path, '/'));
     }
 }

@@ -25,6 +25,9 @@ class About extends Model
         'skills' => 'array',
     ];
 
+    // Append computed URL attributes to model JSON automatically
+    protected $appends = ['image_url', 'cv_url'];
+
     /**
      * Get the portfolio user that owns the about data.
      */
@@ -38,7 +41,11 @@ class About extends Model
      */
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+        if (empty($this->image_path)) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($this->image_path, '/'));
     }
 
     /**
@@ -46,6 +53,10 @@ class About extends Model
      */
     public function getCvUrlAttribute(): ?string
     {
-        return $this->cv_path ? asset('storage/' . $this->cv_path) : null;
+        if (empty($this->cv_path)) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($this->cv_path, '/'));
     }
 }

@@ -2,7 +2,7 @@ import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 import TextType from "@/Components/Animations/Text/TextType";
 import Magnet from "@/components/Animations/UI/Magnet";
 
-export default function HomeSection({ home , base_url }) {
+export default function HomeSection({ home }) {
     return (
         <section
             id="home"
