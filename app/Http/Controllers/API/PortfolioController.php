@@ -15,6 +15,7 @@ class PortfolioController
     public function __construct(
         protected PortfolioService $portfolioService
     ) {}
+    
     public function getPortfolioByUserId(Request $request)
     {
         $user = $request->user();
@@ -50,7 +51,7 @@ class PortfolioController
             'name' => $logoSetting->name,
             'path' => $logoSetting->path,
             'value' => $logoSetting->value,
-            'file_url' => $logoSetting->file_url // Full URL from accessor
+            'file_url' => $logoSetting->file_url
         ], 200);
     }
 

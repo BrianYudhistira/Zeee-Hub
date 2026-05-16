@@ -285,12 +285,24 @@ class PortfolioService
     }
 
     /**
-     * Store uploaded file
+     * Store uploaded file directly to public folder
+     * Returns path relative to public folder
      */
     private function storeFile($file, string $path): string
     {
         $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        return $file->storeAs($path, $filename, 'public');
+        
+        // Create directory if not exists
+        $fullPath = public_path($path);
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+        
+        // Move file to public folder
+        $file->move($fullPath, $filename);
+        
+        // Return path relative to public (for asset() helper)
+        return $path . '/' . $filename;
     }
 
     /**

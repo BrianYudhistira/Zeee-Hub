@@ -31,13 +31,12 @@ class AuthService
 
         // Create user log
         $user->logs()->create([
-            'last_login_at' => now(),
+            'message' => 'Login successful',
             'ip_address' => $metadata['ip'] ?? null,
             'location' => $metadata['location'] ?? 'Unknown',
             'user_agent' => $metadata['user_agent'] ?? null,
         ]);
-
-        // Generate token
+        
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [

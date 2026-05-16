@@ -12,7 +12,20 @@ class PortfolioController{
     {
         $user = User::findOrFail(1);
         return Inertia::render('Portfolio/Portfolio',[
-            'portfolio' => $user->portfolioUser()->with(['home', 'about', 'projects', 'contacts'])->first()
+            'portfolio' => $user->portfolioUser()->with(['home', 'about', 'projects.techStacks', 'contacts', 'experiences', 'userSkills.techStack'])->first()
+        ]);
+    }
+
+    public function getProjectById($id)
+    {
+        $project = \App\Models\Project::with(['techStacks', 'images'])->find($id);
+
+        if (! $project) {
+            abort(404, 'Project not found');
+        }
+
+        return Inertia::render('Projects/Projects', [
+            'project' => $project,
         ]);
     }
 
@@ -21,7 +34,7 @@ class PortfolioController{
         // Debug: Log the slug being searched
         Log::info('Searching for portfolio with slug: ' . $slug);
         
-        $portfolio = PortfolioUser::with(['user', 'home', 'about', 'projects', 'contacts'])
+        $portfolio = PortfolioUser::with(['user', 'home', 'about', 'projects.techStacks', 'contacts', 'experiences', 'userSkills.techStack'])
                     ->where('slug', $slug)
                     ->where('is_active', true)
                     ->first();

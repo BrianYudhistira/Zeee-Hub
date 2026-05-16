@@ -28,7 +28,7 @@ class EmailVerificationController extends Controller
         return response()->json(['message' => 'Verification email sent'], 200);
     }
 
-    public function verify(Request $request, $id, $hash)
+    public function verify($id, $hash)
     {
         $user = User::findOrFail($id);
 
