@@ -49,6 +49,7 @@ return new class extends Migration
             $table->string('title', 255);
             $table->text('description');
             $table->string('image_path')->nullable();
+            $table->string('slug')->unique();
             $table->string('demo_url')->nullable();
             $table->string('source_url')->nullable();
             $table->json('tech_stack');

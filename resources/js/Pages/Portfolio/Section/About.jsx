@@ -111,7 +111,7 @@ export default function AboutSection({ about }) {
                                         Ready to hire? Find my CV or reach out
                                     </span>
                                     <div className="flex flex-row justify-center md:justify-start items-center gap-5 mt-4">
-                                        {about.cv && (
+                                        {about.cv_path && (
                                             <AnimatedContent
                                                 distance={50}
                                                 direction="vertical"
@@ -124,7 +124,7 @@ export default function AboutSection({ about }) {
                                                 threshold={0}
                                                 delay={0.2}
                                             >
-                                                <a href={about.cv_path} download="Brian_Yudhistira_Resume.pdf"
+                                                <a href={`/storage/${about.cv_path}`} download="Brian_Yudhistira_Resume.pdf"
                                                     className="w-32 md:w-48 h-auto text-cyan-200 bg-[#0a1b2e] border-2 border-cyan-400 rounded-md px-4 py-2 font-semibold tracking-wider shadow-[6px_6px_0_0_#0e3a5b] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_0_#0e3a5b] transition-all duration-200 text-center font-retro-pixel text-xs md:text-sm">
                                                     Download CV
                                                 </a>

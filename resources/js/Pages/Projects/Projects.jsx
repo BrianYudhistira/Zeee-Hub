@@ -1,4 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 import FuturisticBackground from "@/Components/Animations/Background/FuturisticBackground";
 
@@ -25,6 +27,107 @@ function resolveTechStack(project) {
     return [];
 }
 
+function ImageSlider({ images, altText }) {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isInView, setIsInView] = useState(false);
+    const sliderRef = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsInView(entry.isIntersecting);
+            },
+            { threshold: 0.3 }
+        );
+
+        if (sliderRef.current) {
+            observer.observe(sliderRef.current);
+        }
+
+        return () => {
+            observer.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        // Hanya jalan jika gambar > 1, sedang terlihat di layar, dan tidak sedang di-hover
+        if (!images || images.length <= 1 || !isInView || isHovered) return;
+        
+        const interval = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % images.length);
+        }, 3000);
+        
+        return () => clearInterval(interval);
+    }, [images, currentIndex, isInView, isHovered]);
+
+    const handlePrev = () => {
+        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
+    const handleNext = () => {
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+    };
+
+    if (!images || images.length === 0) return null;
+
+    if (images.length === 1) {
+        return (
+            <img
+                src={images[0]}
+                alt={altText}
+                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.015]"
+            />
+        );
+    }
+
+    return (
+        <div 
+            ref={sliderRef}
+            className="relative w-full h-full group/slider overflow-hidden"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div 
+                className="flex transition-transform duration-500 ease-in-out h-full"
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            >
+                {images.map((imgSrc, idx) => (
+                    <img
+                        key={idx}
+                        src={imgSrc}
+                        alt={`${altText} ${idx + 1}`}
+                        className="w-full h-auto object-cover shrink-0"
+                    />
+                ))}
+            </div>
+            
+            <button 
+                onClick={handlePrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity z-20"
+            >
+                <ChevronLeft size={20} />
+            </button>
+            <button 
+                onClick={handleNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full opacity-0 group-hover/slider:opacity-100 transition-opacity z-20"
+            >
+                <ChevronRight size={20} />
+            </button>
+            
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                {images.map((_, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`w-2 h-2 rounded-full transition-colors ${idx === currentIndex ? 'bg-cyan-400' : 'bg-white/30'}`}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default function Projects({ project }) {
     if (!project) {
         return (
@@ -35,13 +138,26 @@ export default function Projects({ project }) {
     }
 
     const screenshots = project.images?.length
-        ? project.images.map((image, idx) => ({
-            src: image.image_url || `/storage/${image.image_path}`,
-            alt: image.title || `${project.title} ${idx + 1}`,
-            caption: image.description || project.description || 'Project screenshot',
-        }))
+        ? project.images.map((image, idx) => {
+            let srcArray = [];
+            if (Array.isArray(image.image_url)) {
+                srcArray = image.image_url;
+            } else if (image.image_url) {
+                srcArray = [image.image_url];
+            } else if (Array.isArray(image.image_path)) {
+                srcArray = image.image_path.map(p => `/storage/${p}`);
+            } else {
+                srcArray = [`/storage/${image.image_path}`];
+            }
+
+            return {
+                src: srcArray,
+                alt: image.title || `${project.title} ${idx + 1}`,
+                caption: image.description || project.description || 'Project screenshot',
+            };
+        })
         : [];
-    const heroImage = project.image_url || screenshots[0]?.src || null;
+    const heroImage = project.image_url || (screenshots[0]?.src ? screenshots[0].src[0] : null);
     const techStack = resolveTechStack(project);
 
     return (
@@ -57,7 +173,6 @@ export default function Projects({ project }) {
 
             <div className="relative z-10 min-h-screen font-retro-mono" style={{ backgroundColor: 'transparent' }}>
 
-                {/* ── Sticky Nav ── */}
                 <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#050510]/60 border-b border-cyan-400/5">
                     <div className="max-w-[80%] 2xl:max-w-[80%] mx-auto px-6 py-4 flex items-center justify-between">
                         <a href="#home" className="flex items-center gap-3 group">
@@ -78,12 +193,8 @@ export default function Projects({ project }) {
                     </div>
                 </nav>
 
-                {/* ════════════════════════════════════════
-                    HERO SECTION
-                ════════════════════════════════════════ */}
                 <section className="pt-16 md:pt-24 pb-10 md:pb-14 px-6">
                     <div className="max-w-6xl mx-auto">
-                        {/* Meta badges */}
                         <AnimatedContent distance={30} direction="vertical" reverse={true} duration={1} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1}>
                             <div className="flex items-center gap-3 mb-6">
                                 {project.is_featured && (
@@ -98,14 +209,12 @@ export default function Projects({ project }) {
                             </div>
                         </AnimatedContent>
 
-                        {/* Title */}
                         <AnimatedContent distance={40} direction="vertical" reverse={true} duration={1.2} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1} delay={0.1}>
                             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 font-retro-pixel bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent">
                                 {project.title}
                             </h1>
                         </AnimatedContent>
 
-                        {/* Description + Actions */}
                         <AnimatedContent distance={30} direction="vertical" reverse={true} duration={1} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1} delay={0.2}>
                             <p className="text-base sm:text-lg md:text-xl text-white/75 leading-relaxed max-w-3xl mb-8">
                                 {project.description}
@@ -133,14 +242,13 @@ export default function Projects({ project }) {
                             </div>
                         </AnimatedContent>
 
-                        {/* Hero Image */}
                         <AnimatedContent distance={60} direction="vertical" reverse={false} duration={1.4} ease="power3.out" initialOpacity={0} animateOpacity scale={0.98} threshold={0.1} delay={0.2}>
                             <div className="relative rounded-2xl overflow-hidden border border-cyan-400/10 group shadow-[0_0_40px_rgba(34,211,238,0.05)]">
                                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" />
                                 <div className="aspect-video bg-[#060614] flex items-center justify-center">
                                     {heroImage ? (
                                         <img src={heroImage} alt={project.title}
-                                            className="h-full w-auto max-w-full object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.02]" />
+                                            className="h-full w-auto max-w-full object-cover mx-auto transition-transform duration-700 group-hover:scale-[1.02]" />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center text-cyan-400/15 gap-4">
                                             <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.5}>
@@ -155,9 +263,6 @@ export default function Projects({ project }) {
                     </div>
                 </section>
 
-                {/* ════════════════════════════════════════
-                    TECH STACK — with devicon logos
-                ════════════════════════════════════════ */}
                 {techStack.length > 0 && (
                     <section className="py-3 px-6">
                         <div className="max-w-6xl mx-auto">
@@ -194,76 +299,68 @@ export default function Projects({ project }) {
                 <div className="max-w-6xl mx-auto px-6">
                     <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
                 </div>
+                
+                {screenshots.length > 0 && (
+                    <section className="py-16 px-6">
+                        <div className="max-w-6xl mx-auto">
+                            <AnimatedContent distance={30} direction="vertical" reverse={true} duration={1} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1}>
+                                <div className="mb-14 max-w-xl">
+                                    <span className="text-[10px] tracking-[0.3em] uppercase text-cyan-400/80 font-semibold">
+                                        Documentation
+                                    </span>
+                                    <h2 className="text-2xl md:text-3xl font-bold mt-3 leading-snug font-retro-pixel bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent">
+                                        Application Screenshots
+                                    </h2>
+                                    <p className="text-sm text-white/50 mt-3 leading-relaxed">
+                                        A visual walkthrough of the key screens and features.
+                                    </p>
+                                </div>
+                            </AnimatedContent>
 
-                {/* ════════════════════════════════════════
-                    DOCUMENTATION / SCREENSHOTS
-                ════════════════════════════════════════ */}
-                <section className="py-16 px-6">
-                    <div className="max-w-6xl mx-auto">
-                        <AnimatedContent distance={30} direction="vertical" reverse={true} duration={1} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1}>
-                            <div className="mb-14 max-w-xl">
-                                <span className="text-[10px] tracking-[0.3em] uppercase text-cyan-400/80 font-semibold">
-                                    Documentation
-                                </span>
-                                <h2 className="text-2xl md:text-3xl font-bold mt-3 leading-snug font-retro-pixel bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent">
-                                    Application Screenshots
-                                </h2>
-                                <p className="text-sm text-white/50 mt-3 leading-relaxed">
-                                    A visual walkthrough of the key screens and features.
-                                </p>
+                            <div className="space-y-16 md:space-y-24">
+                                {screenshots.map((screenshot, idx) => (
+                                    <AnimatedContent
+                                        key={idx}
+                                        distance={50}
+                                        direction="vertical"
+                                        reverse={false}
+                                        duration={1.2}
+                                        ease="power3.out"
+                                        initialOpacity={0}
+                                        animateOpacity
+                                        scale={0.98}
+                                        threshold={0.1}
+                                        delay={0.05}
+                                    >
+                                        <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center`}>
+                                            <div className={`lg:col-span-8 ${idx % 2 === 1 ? 'lg:order-2' : 'lg:order-1'}`}>
+                                                <div className="relative rounded-xl overflow-hidden border border-cyan-400/8 group shadow-[0_0_30px_rgba(34,211,238,0.04)]">
+                                                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent z-10" />
+                                                    <ImageSlider images={screenshot.src} altText={screenshot.alt} />
+                                                </div>
+                                            </div>
+
+                                            <div className={`lg:col-span-4 ${idx % 2 === 1 ? 'lg:order-1' : 'lg:order-2'}`}>
+                                                <div className="space-y-3">
+                                                    <span className="text-[10px] tracking-[0.2em] uppercase text-cyan-400/40 font-semibold">
+                                                        {String(idx + 1).padStart(2, '0')} / {String(screenshots.length).padStart(2, '0')}
+                                                    </span>
+                                                    <h3 className="text-lg md:text-xl font-semibold text-cyan-200/90 font-retro-pixel">
+                                                        {screenshot.alt}
+                                                    </h3>
+                                                    <p className="text-sm text-white/60 leading-relaxed">
+                                                        {screenshot.caption}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </AnimatedContent>
+                                ))}
                             </div>
-                        </AnimatedContent>
-
-                        <div className="space-y-16 md:space-y-24">
-                            {screenshots.map((screenshot, idx) => (
-                                <AnimatedContent
-                                    key={idx}
-                                    distance={50}
-                                    direction="vertical"
-                                    reverse={false}
-                                    duration={1.2}
-                                    ease="power3.out"
-                                    initialOpacity={0}
-                                    animateOpacity
-                                    scale={0.98}
-                                    threshold={0.1}
-                                    delay={0.05}
-                                >
-                                    <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center`}>
-                                        {/* Image — 8 cols */}
-                                        <div className={`lg:col-span-8 ${idx % 2 === 1 ? 'lg:order-2' : 'lg:order-1'}`}>
-                                            <div className="relative rounded-xl overflow-hidden border border-cyan-400/8 group shadow-[0_0_30px_rgba(34,211,238,0.04)]">
-                                                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent" />
-                                                <img
-                                                    src={screenshot.src}
-                                                    alt={screenshot.alt}
-                                                    className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.015]"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Caption — 4 cols */}
-                                        <div className={`lg:col-span-4 ${idx % 2 === 1 ? 'lg:order-1' : 'lg:order-2'}`}>
-                                            <div className="space-y-3">
-                                                <span className="text-[10px] tracking-[0.2em] uppercase text-cyan-400/40 font-semibold">
-                                                    {String(idx + 1).padStart(2, '0')} / {String(screenshots.length).padStart(2, '0')}
-                                                </span>
-                                                <h3 className="text-lg md:text-xl font-semibold text-cyan-200/90 font-retro-pixel">
-                                                    {screenshot.alt}
-                                                </h3>
-                                                <p className="text-sm text-white/60 leading-relaxed">
-                                                    {screenshot.caption}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </AnimatedContent>
-                            ))}
                         </div>
-                    </div>
-                </section>
+                    </section>
+                )}
 
-                {/* Divider */}
                 <div className="max-w-6xl mx-auto px-6">
                     <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
                 </div>

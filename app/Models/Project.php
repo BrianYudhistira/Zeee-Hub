@@ -26,6 +26,7 @@ class Project extends Model
     ];
 
     protected $casts = [
+        'image_path' => 'array',
         'tech_stack' => 'array',
         'is_featured' => 'boolean',
         'sort_order' => 'integer',
@@ -65,6 +66,20 @@ class Project extends Model
             return null;
         }
 
-        return asset('storage/' . ltrim($this->image_path, '/'));
+        $imagePath = $this->image_path;
+        if (is_array($imagePath)) {
+            foreach ($imagePath as $path) {
+                if (!empty($path)) {
+                    $imagePath = $path;
+                    break;
+                }
+            }
+        }
+
+        if (empty($imagePath) || is_array($imagePath)) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($imagePath, '/'));
     }
 }

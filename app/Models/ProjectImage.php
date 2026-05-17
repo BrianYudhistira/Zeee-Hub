@@ -21,15 +21,25 @@ class ProjectImage extends Model
         'image_url',
     ];
 
+    protected $casts = [
+        'image_path' => 'array',
+    ];
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function getImageUrlAttribute(): ?string
+    public function getImageUrlAttribute(): array|string|null
     {
         if (empty($this->image_path)) {
             return null;
+        }
+
+        if (is_array($this->image_path)) {
+            return array_map(function($path) {
+                return asset('storage/' . ltrim($path, '/'));
+            }, $this->image_path);
         }
 
         return asset('storage/' . ltrim($this->image_path, '/'));

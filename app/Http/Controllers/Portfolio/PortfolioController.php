@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portfolio;
 
 use App\Models\User;
 use App\Models\PortfolioUser;
+use App\Models\Project;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 
@@ -16,9 +17,9 @@ class PortfolioController{
         ]);
     }
 
-    public function getProjectById($id)
+    public function getProjectById($slug)
     {
-        $project = \App\Models\Project::with(['techStacks', 'images'])->find($id);
+        $project = Project::with(['techStacks', 'images'])->where('slug', $slug)->first();
 
         if (! $project) {
             abort(404, 'Project not found');
@@ -31,7 +32,6 @@ class PortfolioController{
 
     public function getPortfolioBySlug($slug)
     {
-        // Debug: Log the slug being searched
         Log::info('Searching for portfolio with slug: ' . $slug);
         
         $portfolio = PortfolioUser::with(['user', 'home', 'about', 'projects.techStacks', 'contacts', 'experiences', 'userSkills.techStack'])

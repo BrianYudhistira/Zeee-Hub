@@ -1,5 +1,11 @@
 import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 
+function getDeviconClass(icon) {
+    if (!icon) return null;
+    if (icon.startsWith('devicon-')) return icon;
+    return `devicon-${icon}-plain`;
+}
+
 export default function ProjectSection({ projects }) {
     return (
         <section id="project" className='min-h-[90vh] h-auto w-full flex justify-center font-retro-mono scroll-mt-24 '>
@@ -22,7 +28,7 @@ export default function ProjectSection({ projects }) {
                     </AnimatedContent>
                     <div className='relative w-full h-auto py-10'>
                         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch'>
-                            {projects.map((project, index) => (
+                            {projects.slice(0, 6).map((project, index) => (
                                 <AnimatedContent
                                     key={index}
                                     distance={50}
@@ -47,7 +53,7 @@ export default function ProjectSection({ projects }) {
                                         <div className='relative mb-4'>
                                             <div className='aspect-video w-full overflow-hidden rounded-xl ring-1 ring-gray-600/40 group-hover:ring-cyan-400/40 transition-all duration-500'>
                                                 <img
-                                                    src={project.image_url || `/storage/${project.image_path}`}
+                                                    src={`/storage/${project.image_path}`}
                                                     alt={project.title}
                                                     width={600}
                                                     height={400}
@@ -71,7 +77,7 @@ export default function ProjectSection({ projects }) {
                                                         key={i}
                                                         className='text-[10px] md:text-[11px] uppercase tracking-wide font-medium px-2 py-1 rounded-md text-cyan-200 bg-[#0a1b2e]/80 border-2 border-cyan-400 shadow-[4px_4px_0_0_#0e3a5b] transition-colors duration-300 font-retro-mono inline-flex items-center gap-1.5'
                                                     >
-                                                        {ts.icon && <i className={`devicon-${ts.icon}-plain text-[12px]`} />}
+                                                        {ts.icon && <i className={`${getDeviconClass(ts.icon)} text-[12px]`} />}
                                                         {ts.name}
                                                     </span>
                                                 ))
@@ -86,20 +92,24 @@ export default function ProjectSection({ projects }) {
                                             )}
                                         </div>
                                         <div className='mt-5 flex items-center justify-between text-xs'>
+                                            <div>
+                                                {project.source_url && (
+                                                    <a
+                                                        href={project.source_url}
+                                                        target='_blank'
+                                                        rel='noopener noreferrer'
+                                                        className='inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 transition-colors font-retro-mono'
+                                                    >
+                                                        <span>View Repo</span>
+                                                        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='w-4 h-4'>
+                                                            <path d='M7 17L17 7' />
+                                                            <path d='M7 7h10v10' />
+                                                        </svg>
+                                                    </a>
+                                                )}
+                                            </div>
                                             <a
-                                                href={project.source_url}
-                                                target='_blank'
-                                                rel='noopener noreferrer'
-                                                className='inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 transition-colors font-retro-mono'
-                                            >
-                                                <span>View Repo</span>
-                                                <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='w-4 h-4'>
-                                                    <path d='M7 17L17 7' />
-                                                    <path d='M7 7h10v10' />
-                                                </svg>
-                                            </a>
-                                            <a
-                                                href={`/me/projects/${project.id}`}
+                                                href={`/me/projects/${project.slug}`}
                                                 target='_blank'
                                                 rel='noopener noreferrer'>
                                                 <span className='opacity-0 group-hover:opacity-100 text-cyan-300 transition-opacity duration-500 font-retro-mono'>Explore →</span>
@@ -113,6 +123,20 @@ export default function ProjectSection({ projects }) {
                                 </AnimatedContent>
                             ))}
                         </div>
+                        {projects.length > 6 && (
+                            <div className="flex w-full justify-end mt-6">
+                                <a
+                                    href="/me/projects"
+                                    className="text-white/90 hover:text-cyan-400 transition-colors duration-300 font-retro-mono flex items-center gap-1"
+                                >
+                                    <span>View All Projects</span>
+                                    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='w-4 h-4'>
+                                        <path d='M5 12h14' />
+                                        <path d='M12 5l7 7-7 7' />
+                                    </svg>
+                                </a>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
