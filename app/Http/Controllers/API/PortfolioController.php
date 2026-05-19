@@ -4,10 +4,18 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Services\PortfolioService;
+use App\Models\PortfolioSetting;
+use App\Http\Requests\Portfolio\UpdatePortfolioRequest;
 
 class PortfolioController
 {
+    public function __construct(
+        protected PortfolioService $portfolioService
+    ) {}
+    
     public function getPortfolioByUserId(Request $request)
     {
         $user = $request->user();
@@ -15,19 +23,140 @@ class PortfolioController
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Ensure portfolioUser relation exists and load all expected relations
-        $portfolioRelation = $user->portfolioUser();
-        if (! $portfolioRelation) {
-            return response()->json(['message' => 'Portfolio not found'], 404);
-        }
+        $portfolio = $this->portfolioService->getPortfolio($user);
 
-        $portfolio = $portfolioRelation->with(['home', 'about', 'projects', 'contacts'])->first();
-
-        if (! $portfolio) {
+        if (!$portfolio) {
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
         return response()->json($portfolio, 200);
+    }
+
+    public function getLogo(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Get 'logo' setting from portfolio settings
+        $logoSetting = PortfolioSetting::where('name', 'logo')->first();
+
+        if (!$logoSetting) {
+            return response()->json(['message' => 'Logo setting not found'], 404);
+        }
+
+        return response()->json([
+            'id' => $logoSetting->id,
+            'name' => $logoSetting->name,
+            'path' => $logoSetting->path,
+            'value' => $logoSetting->value,
+            'file_url' => $logoSetting->file_url
+        ], 200);
+    }
+
+    public function editPortfolioFormData(UpdatePortfolioRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            // Get validated data
+            $data = $request->validated();
+            
+            // Decode JSON strings from form-data (if they are strings)
+            if (isset($data['sections']) && is_string($data['sections'])) {
+                $data['sections'] = json_decode($data['sections'], true);
+            }
+            if (isset($data['home']) && is_string($data['home'])) {
+                $data['home'] = json_decode($data['home'], true);
+            }
+            if (isset($data['about']) && is_string($data['about'])) {
+                $data['about'] = json_decode($data['about'], true);
+            }
+            if (isset($data['projects']) && is_string($data['projects'])) {
+                $data['projects'] = json_decode($data['projects'], true);
+            }
+            if (isset($data['contacts']) && is_string($data['contacts'])) {
+                $data['contacts'] = json_decode($data['contacts'], true);
+            }
+
+            $files = [
+                'about_image' => $request->file('about_image'),
+                'about_cv' => $request->file('about_cv'),
+                'project_images' => $request->file('project_images'),
+                'home_logo' => $request->file('home_logo'),
+            ];
+
+            $portfolio = $this->portfolioService->createOrUpdatePortfolio(
+                $user,
+                $data,
+                $files
+            );
+
+            return response()->json([
+                'message' => 'Portfolio updated successfully',
+                'data' => $portfolio
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update portfolio',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function editPortfolioJsonData(UpdatePortfolioRequest $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $portfolio = $this->portfolioService->createOrUpdatePortfolio(
+                $user,
+                $request->validated(),
+                []
+            );
+
+            return response()->json([
+                'message' => 'Portfolio updated successfully',
+                'data' => $portfolio
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update portfolio',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteportfolio(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $password = $request->validate([
+            'password' => 'required|string',
+        ]);
+        
+        if (!Hash::check($password['password'], $user->password)) {
+            return response()->json(['message' => 'Incorrect password'], 403);
+        }
+
+        $portfolio = $user->portfolioUser()->first();
+        if (!$portfolio) {
+            return response()->json(['message' => 'Portfolio not found'], 404);
+        }
+
+        $this->portfolioService->deletePortfolio($portfolio);
+
+        return response()->json(['message' => 'Portfolio deleted successfully'], 200);
     }
 
     public function editHome(Request $request)
@@ -40,7 +169,6 @@ class PortfolioController
             'description' => 'nullable|string',
             'logo'=>'nullable|image|max:2048',
         ]);
-        // dd($request->all());
 
 
         $user = $request->user();
@@ -157,16 +285,13 @@ class PortfolioController
         return response()->json(['message' => 'About section updated successfully'], 200);
     }
 
-    public function editProjects(Request $request)
+    public function editProjectsOrder(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string',
-            'description' => 'required|string',
-            'image'=>'required|image|max:2048',
-            'demo_link' => 'nullable|url',
-            'repo_link' => 'nullable|url',
-            'techstacks' => 'required|array',
-            'techstacks.*' => 'string',
+        $portfolio_data = $request->validate([
+            'projects' => 'required|array',
+            'projects.*.id' => 'required|integer|exists:projects,id',
+            'projects.*.sort_order' => 'nullable|integer',
+            'projects.*.is_featured' => 'nullable|boolean',
         ]);
 
         $user = $request->user();
@@ -179,25 +304,22 @@ class PortfolioController
             return response()->json(['message' => 'Portfolio not found'], 404);
         }
 
-        $imagePath = $portfolio->projects->image_path;
+        $portfolio_id = [];
 
-        if ($request->hasFile('image')) {
-            if ($portfolio->projects->image_path) {
-                Storage::disk('public')->delete($portfolio->projects->image_path);
+        foreach ($portfolio_data['projects'] as $project) {
+            // Cari proyek berdasarkan ID di koleksi projects
+            $existingProject = $portfolio->projects()->where('id', $project['id'])->first();
+
+            if ($existingProject) {
+                $existingProject->update([
+                    'sort_order' => $project['sort_order'] ?? 999,
+                    'is_featured' => $project['is_featured'] ?? false,
+                ]);
+                $portfolio_id[] = $project['id'];
             }
-            $file = $request->file('image');
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $imagePath = $file->storeAs("project_images/{$user->id}", $filename, 'public');
         }
 
-        $portfolio->projects()->update([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'image_path' => $imagePath,
-            'demo_link' => $request->input('demo_link'),
-            'repo_link' => $request->input('repo_link'),
-            'techstacks' => json_encode($request->input('techstacks')),
-        ]);
+        return response()->json(['updated_projects' => $portfolio_id], 200);
     }
 
     public function editContacts(Request $request)

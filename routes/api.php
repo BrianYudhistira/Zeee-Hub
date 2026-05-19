@@ -1,29 +1,19 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\PortfolioController;
 
+// Authentication routes (includes public endpoints)
+require __DIR__.'/modules/auth.php';
 
+// Protected routes
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    })->name('user');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::delete('/user', [AuthController::class, 'dropUser'])->name('user.drop');
-    Route::delete('/users/{id}', [AuthController::class, 'deleteUserById'])->name('user.delete');
-    Route::get('/portfolio', [PortfolioController::class, 'getPortfolioByUserId'])->name('portfolio');
+    // Portfolio routes
+    require __DIR__.'/modules/portfolio.php';
 
-    Route::post('/user/update', [AuthController::class, 'editUser'])->name('user.edit');
+    // Keuangan routes
+    require __DIR__.'/modules/keuangan.php';
 
-    Route::post('/portfolio/update_home', [PortfolioController::class, 'editHome'])->name('portfolio.home.edit');
-    Route::post('/portfolio/update_about', [PortfolioController::class, 'editAbout'])->name('portfolio.about.edit');
-    Route::post('/portfolio/update_projects', [PortfolioController::class, 'editProjects'])->name('portfolio.projects.edit');
-    Route::post('/portfolio/update_contacts', [PortfolioController::class, 'editContacts'])->name('portfolio.contacts.edit');
+    require __DIR__.'/modules/email.php';
 
-    Route::post('/email/send_verification', [App\Http\Controllers\API\EmailVerificationController::class, 'send'])->name('email.send_verification');
+    require __DIR__.'/modules/user.php';
 });
-
-Route::post('/login', [AuthController::class, 'login'])->name('api.login');
-Route::post('/signin', [AuthController::class, 'signin'])->name('signin');

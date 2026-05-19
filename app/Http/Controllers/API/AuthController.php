@@ -3,225 +3,127 @@
 namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use App\Services\LogService;
 
 class AuthController extends Controller
 {
+    protected $logService;
+
+    public function __construct(LogService $logService)
+    {
+        $this->logService = $logService;
+    }
+
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $user = Auth::user();
-
-        $user->update([
-            'last_login_at' => now(),
-            'ip_address' => $request->ip(),
-            'location' => $request->header('X-Location', 'Unknown'), // bisa diisi dari frontend nanti
-        ]);
-
-        $user->logs()->create([
-            'last_login_at' => now(),
-            'ip_address' => $request->ip(),
-            'location' => $request->header('X-Location', 'Unknown'),
-            'user_agent' => $request->userAgent(),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $user->load('portfolioUser'),
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ], 200);
-    }
-
-    public function logout( Request $request )
-    {
-        $user = $request->user();
-        if ($user) {
-            $current = $user->currentAccessToken();
-            if ($current && isset($current->id)) {
-                DB::table('personal_access_tokens')->where('id', $current->id)->delete();
-            }
-
-            if (method_exists($user, 'tokens')) {
-                $user->tokens()->delete();
-            }
-        }
-        return response()->json( [ 'message' => 'Logged out successfully' ], 200 );
-    }
-
-    public function signin( Request $request )
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'password' => 'required|string|min:6',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ];
-
-        // Basic validation (will return 422 JSON automatically on failure)
-        $userdata = $request->validate($rules);
-
-        // Pre-check uniqueness: check email first, return immediately if duplicate
-        if (User::where('email', $userdata['email'])->exists()) {
-            return response()->json([
-                'message' => 'The given data was invalid.',
-                'errors' => ['email' => ['The email has already been taken.']],
-            ], 422);
-        }
-        if (User::where('name', $userdata['name'])->exists()) {
-            return response()->json([
-                'message' => 'The given data was invalid.',
-                'errors' => ['name' => ['The name has already been taken.']],
-            ], 422);
-        }
-
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-            $photoPath = $file->storeAs('users', $filename, 'public');
-        }
-
-        try{
-            $user = User::create([
-                'name' => $userdata['name'],
-                'email' => $userdata['email'],
-                'photo_path' => $photoPath,
-                'password' => bcrypt($userdata['password']),
+        try {
+            $validated = $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
             ]);
-            
-            // Create token untuk user baru
-            $token = $user->createToken('auth_token')->plainTextToken;
-            
-        }catch (\Exception $e){
-            return response()->json([ 'message' => 'Registration failed', 'error' => $e->getMessage() ], 500 );
-        }
 
-        return response()->json([ 
-            'message' => 'User registered successfully', 
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer'
-        ], 201 );
-    }
-
-    public function dropUser( Request $request )
-    {
-        $user = $request->user();
-        if (! $user) {
-            return response()->json([ 'message' => 'Unauthenticated' ], 401);
-        }
-
-        if (method_exists($user, 'tokens')) {
-            $user->tokens()->delete();
-        } else {
-            $token = $request->user()->currentAccessToken();
-            if ($token && isset($token->id)) {
-                DB::table('personal_access_tokens')->where('id', $token->id)->delete();
+            if (!Auth::attempt($validated, false)) {
+                $this->logService->warningLog(
+                    'Auth',
+                    'Failed login attempt for email: ' . $validated['email']
+                );
+                throw new \Exception('Invalid credentials', 401);
             }
-        }
 
-        $user->delete();
+            $request->session()->regenerate();
 
-        return response()->json([ 'message' => 'User account deleted successfully' ], 200);
-    }
+            $user = User::where('email', $validated['email'])->firstOrFail();
 
-    public function deleteUserById(Request $request, $id)
-    {
-        $auth = $request->user();
+            $this->logService->infoLog(
+                'Auth',
+                'Success: User logged in'
+            );
 
-        if(! $auth) {
-            return response()->json([ 'message' => 'Unauthenticated' ], 401);
-        }
-        if ($auth->role !== 'admin') {
-            return response()->json([ 'message' => 'Forbidden' ], 403);
-        }
-        $user = User::find($id);
-        if (! $user) {
-            return response()->json([ 'message' => 'User not found' ], 404);
-        }
-
-        $user->delete();
-
-        return response()->json([ 'message' => 'User deleted successfully' ], 200);
-    }
-
-    public function editUser(Request $request)
-    {
-        $user = $request->user();
-        if (! $user) {
-            return response()->json([ 'message' => 'Unauthenticated' ], 401);
-        }
-
-        $rules = [
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|max:255',
-            'username' => 'sometimes|required|string|max:255',
-            'bio' => 'sometimes|nullable|string|max:1000',
-            'status' => 'sometimes|nullable|string|max:255',
-            'photo' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ];
-        
-        $passwordRules = 'sometimes|required|string|min:6';
-
-        $userdata = $request->validate($rules);
-        $userdataPassword = $request->validate([
-            'password' => $passwordRules,
-        ]);
-
-        if (!Hash::check($userdataPassword['password'], $user->password)) {
             return response()->json([
-                'message' => 'The given data was invalid.',
-                'errors' => ['password' => ['The password is incorrect.']],
-            ], 422);
-        }
+                'message' => 'Login successful',
+                'user' => $user,
+            ], 200);
 
-        if (isset($userdata['email']) && $userdata['email'] !== $user->email) {
-            if (User::where('email', $userdata['email'])->exists()) {
-                return response()->json([
-                    'message' => 'The given data was invalid.',
-                    'errors' => ['email' => ['The email has already been taken.']],
-                ], 422);
+        } catch (\Exception $e) {
+            $this->logService->errorLog(
+                'Auth',
+                'Login error: ' . $e->getMessage()
+            );
+            return response()->json(['message' => $e->getMessage()], 401);
+        }
+    }
+
+    public function rememberedLogin(Request $request)
+    {
+        try{
+            $validated = $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ]);
+
+            if(!Auth::attempt($validated, true)) {
+                throw new \Exception('Invalid credentials', 401);
             }
+
+            $request->session()->regenerate();
+
+            $user = User::where('email', $validated['email'])->firstOrFail();
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+            ], 200);
+        } catch(\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 401);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        if (isset($userdata['username']) && $userdata['username'] !== $user->username) {
-            if (User::where('username', $userdata['username'])->exists()) {
-                return response()->json([
-                    'message' => 'The given data was invalid.',
-                    'errors' => ['username' => ['The username has already been taken.']],
-                ], 422);
-            }
+        $this->logService->infoLog(
+            'Auth',
+            'Success: User logged out'
+        );
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
+    }
+
+    public function logoutAll(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        if ($request->hasFile('photo')) {
-            if ($user->photo_path) {
-                Storage::disk('public')->delete($user->photo_path);
-            }
-            $file = $request->file('photo');
-            $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-            $photoPath = $file->storeAs('users', $filename, 'public');
-            $userdata['photo_path'] = $photoPath;
-        }
+        $this->logService->infoLog(
+            'Auth',
+            'Success: User logged out from all devices'
+        );
 
-        $user->update($userdata);
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+        $user->setRememberToken(Str::random(60));
+        $user->save();
 
-        return response()->json([ 
-            'message' => 'User updated successfully', 
-            'user' => $user 
-        ], 200 );
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out from all devices successfully'], 200);
     }
 }

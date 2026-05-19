@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // Untuk production: ['http://localhost:3000', 'https://yourdomain.com']
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')], // Untuk production: ['http://localhost:3000', 'https://yourdomain.com']
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +29,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false, // Token-based tidak butuh credentials
+    'supports_credentials' => true, // Cookie/session auth membutuhkan credentials
 
 ];

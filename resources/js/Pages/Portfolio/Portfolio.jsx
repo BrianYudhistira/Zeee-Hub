@@ -1,16 +1,24 @@
 import AboutSection from "./Section/About";
+import ExperienceSection from "./Section/Experience";
+import SkillsSection from "./Section/Skills";
 import ProjectsSection from "./Section/Project";
 import ContactSection from "./Section/Contact";
 import HomeSection from "./Section/Home";
 import { useEffect, useState } from "react";
-import { Head, Link } from '@inertiajs/react';
-import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
+import { Head } from '@inertiajs/react';
+import FuturisticBackground from "@/Components/Animations/Background/FuturisticBackground";
 import { BiMenu } from 'react-icons/bi';
 import Footer from "@/Components/Footer";
-import Particles from "@/Components/Animations/Background/Particles";
-import DarkVeil from "@/Components/Animations/Background/DarkVeil";
 
-export default function Portfolio( { portfolio } ) {
+const navLinks = [
+    { href: '#about', label: 'About' },
+    { href: '#skills', label: 'Skills' },
+    { href: '#experience', label: 'Experience' },
+    { href: '#project', label: 'Projects' },
+    { href: '#contact', label: 'Contact' },
+];
+
+export default function Portfolio({ portfolio }) {
     const [isTop, setIsTop] = useState(true);
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -33,31 +41,30 @@ export default function Portfolio( { portfolio } ) {
 
     useEffect(() => {
         const sections = document.querySelectorAll("section");
-        
+
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         const id = entry.target.id;
-                        // Pilih semua link setiap kali ada perubahan
-                        const navLinks = document.querySelectorAll("a#link");
+                        const navLinks = document.querySelectorAll("a[data-nav-link]");
                         navLinks.forEach((link) => {
-                            link.classList.remove("text-blue-600"); // Reset warna
+                            link.classList.remove("text-cyan-400");
                             if (link.getAttribute("href") === `#${id}`) {
-                                link.classList.add("text-blue-600"); // Tambahkan warna aktif
+                                link.classList.add("text-cyan-400");
                             }
                         });
                     }
                 });
             },
             {
-                threshold: 0.5, // Section harus terlihat 50% untuk dianggap aktif
+                threshold: 0.5,
             }
         );
 
         sections.forEach((section) => observer.observe(section));
 
-        return () => observer.disconnect(); // Bersihkan observer saat komponen unmount
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -78,7 +85,7 @@ export default function Portfolio( { portfolio } ) {
 
     useEffect(() => {
         const handleScroll = () => {
-            if(window.scrollY > 0) {
+            if (window.scrollY > 0) {
                 setIsTop(false);
             } else {
                 setIsTop(true);
@@ -92,71 +99,105 @@ export default function Portfolio( { portfolio } ) {
         };
     }, []);
 
-    return(
+    return (
         <>
-            <Head title="Portfolio"/>
+            <Head title="Portfolio" />
+            <FuturisticBackground
+                speed={1}
+                particleCount={80}
+                interactive={true}
+                resolutionScale={0.75}
+            />
             <div className="w-full font-retro-mono">
-                <div className="fixed inset-0 h-screen w-screen z-0 overflow-hidden">
-                    <DarkVeil/>
-                </div>
-                <div className="fixed inset-0 h-screen w-screen z-10 overflow-hidden">
-                    <Particles
-                        particleColors={['#ffffff', '#ffffff']}
-                        particleCount={300}
-                        particleSpread={13}
-                        speed={0.1}
-                        particleBaseSize={100}
-                        moveParticlesOnHover={true}
-                        alphaParticles={false}
-                        disableRotation={false}
-                    />
-                </div>
-                <nav className={`w-full ${isTop ? 'bg-transparent' : 'bg-white/5 backdrop-blur-md'} fixed top-0 z-50 py-3 md:py-2 px-7 transition-colors duration-500`}>
-                    <AnimatedContent
-                        distance={100}
-                        direction="vertical"
-                        reverse={true}
-                        duration={1.5}
-                        ease="power3.out"
-                        initialOpacity={0}
-                        animateOpacity
-                        scale={1}
-                        threshold={0}
-                        delay={0}
-                    >
-                        <div className="flex flex-row justify-between md:max-w-[80%] 2xl:max-w-[85%] w-full mx-auto items-center">
-                            <div className="flex flex-row items-center">
-                                <img src="/images/web_icon.png" alt="Logo" className="h-7 md:h-10" />
-                                <span className="text-white font-extrabold text-sm md:text-lg">ZeeeHub</span>
-                            </div>
-                            <ul className="hidden md:flex space-x-4 p-4 gap-3 text-lg text-white">
-                                <li><a href="#home" id="link" className=" relative hover:text-blue-600 transition-colors duration-500 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-500 hover:after:w-full">Home</a></li>
-                                <li><a href="#about" id="link" className=" relative hover:text-blue-600 transition-colors duration-500 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-500 hover:after:w-full">About</a></li>
-                                <li><a href="#project" id="link" className=" relative hover:text-blue-600 transition-colors duration-500 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-500 hover:after:w-full">Projects</a></li>
-                                <li><a href="#contact" id="link" className=" relative hover:text-blue-600 transition-colors duration-500 after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-500 hover:after:w-full">Contact</a></li>
-                            </ul>
-                            <div className="md:hidden">
-                                <button aria-label="Menu Button" onClick={() => setMenuOpen(!menuOpen)}>
-                                    <BiMenu id="menu-button" className="text-white h-8 w-8"/>
-                                </button>
-                            </div>
+                <nav className={`fixed w-full top-0 z-50 transition-all duration-500 ${isTop ? 'bg-transparent' : 'backdrop-blur-md bg-[#050510]/60 border-b border-white/5'}`}>
+                    <div className="max-w-[80%] 2xl:max-w-[85%] w-full mx-auto py-4 flex items-center justify-between">
+                        {/* Logo */}
+                        <a href="#home" className="flex items-center gap-3 group">
+                            <img src="/images/web_icon.png" alt="Logo" className="h-8 w-8 md:h-10 md:w-10 transition-transform duration-300 group-hover:scale-105" />
+                            <span className="text-white font-extrabold text-sm md:text-lg tracking-wider font-retro-mono">
+                                ZeeeHub
+                            </span>
+                        </a>
+
+                        {/* Desktop Nav */}
+                        <div className="hidden md:flex items-center gap-8">
+                            {navLinks.map((link) => (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    data-nav-link
+                                    className="text-sm tracking-widest uppercase text-white/90 hover:text-cyan-400 transition-colors duration-300 font-retro-mono font-medium"
+                                >
+                                    {link.label}
+                                </a>
+                            ))}
                         </div>
-                    </AnimatedContent>
-                    <div id="nav-menu" className={`top-full right-0 w-full overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-60' : 'max-h-0'}`}>
-                        <ul className="flex flex-col px-2">
-                            <li><a href="#home" id="link" className="block py-2 text-white hover:text-blue-600 transition-colors duration-500">Home</a></li>
-                            <li><a href="#about" id="link" className="block py-2 text-white hover:text-blue-600 transition-colors duration-500">About</a></li>
-                            <li><a href="#project" id="link" className="block py-2 text-white hover:text-blue-600 transition-colors duration-500">Projects</a></li>
-                            <li><a href="#contact" id="link" className="block py-2 text-white hover:text-blue-600 transition-colors duration-500">Contact</a></li>
-                        </ul>
+
+                        {/* Mobile Menu Toggle */}
+                        <div className="md:hidden">
+                            <button aria-label="Menu Button" onClick={() => setMenuOpen(!menuOpen)}>
+                                <BiMenu id="menu-button" className="text-white h-7 w-7" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    <div id="nav-menu" className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? 'max-h-60' : 'max-h-0'}`}>
+                        <div className="px-6 pb-4 space-y-1 backdrop-blur-md bg-[#050510]/80">
+                            {navLinks.map((link) => (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    data-nav-link
+                                    onClick={() => setMenuOpen(false)}
+                                    className="block py-2.5 text-sm tracking-widest uppercase text-white/90 hover:text-cyan-400 transition-colors duration-300 font-retro-mono"
+                                >
+                                    {link.label}
+                                </a>
+                            ))}
+                        </div>
                     </div>
                 </nav>
+
+                {/* ── Page Content ── */}
                 <div className="relative z-10">
-                <HomeSection home={portfolio.home} />
-                <AboutSection about={portfolio.about} />
-                <ProjectsSection projects={portfolio.projects} />
-                <ContactSection contacts={portfolio.contacts} sosmedLinks={portfolio.home.social_media_links} />
-                <Footer />
+                    <HomeSection home={portfolio.home} />
+
+                    {/* Divider */}
+                    <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto">
+                        <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
+                    </div>
+
+                    <AboutSection about={portfolio.about} />
+
+                    {/* Divider */}
+                    <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto">
+                        <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
+                    </div>
+
+                    <SkillsSection skills={portfolio.user_skills ?? portfolio.userSkills ?? []} />
+
+                    {/* Divider */}
+                    <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto">
+                        <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
+                    </div>
+
+                    <ExperienceSection experiences={portfolio.experiences} />
+
+                    {/* Divider */}
+                    <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto">
+                        <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
+                    </div>
+
+                    <ProjectsSection projects={portfolio.projects} />
+
+                    {/* Divider */}
+                    <div className="max-w-[80%] 2xl:max-w-[85%] mx-auto">
+                        <div className="h-px bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent" />
+                    </div>
+
+                    <ContactSection contacts={portfolio.contacts} sosmedLinks={portfolio.home.social_media_links} />
+                    <Footer />
                 </div>
             </div>
         </>

@@ -21,7 +21,8 @@ const ScrambledText = ({
     if (!rootRef.current) return;
 
     const split = SplitText.create(rootRef.current.querySelector('p'), {
-      type: 'chars',
+      type: 'words, chars',
+      wordsClass: 'inline [white-space:nowrap]',
       charsClass: 'inline-block will-change-transform'
     });
 

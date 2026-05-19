@@ -27,6 +27,10 @@ class Home extends Model
         'passions' => 'array',
     ];
 
+    protected $appends = [
+        'logo_url',
+    ];
+
     /**
      * Get the portfolio user that owns the home data.
      */
@@ -40,6 +44,6 @@ class Home extends Model
      */
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
+        return $this->logo_path ? asset($this->logo_path) : null;
     }
 }

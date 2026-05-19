@@ -66,6 +66,22 @@ class PortfolioUser extends Model
     }
 
     /**
+     * Get all experiences for the portfolio.
+     */
+    public function experiences(): HasMany
+    {
+        return $this->hasMany(Experience::class);
+    }
+
+    /**
+     * Get all user skills for the portfolio.
+     */
+    public function userSkills(): HasMany
+    {
+        return $this->hasMany(UserSkills::class);
+    }
+
+    /**
      * Get featured projects for the portfolio.
      */
     public function featuredProjects(): HasMany

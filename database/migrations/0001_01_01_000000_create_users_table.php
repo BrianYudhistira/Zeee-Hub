@@ -29,19 +29,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('user_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamp('last_login_at')->nullable();
-            $table->string('ip_address', 45)->nullable();
-            $table->string('location')->nullable();
-            $table->text('user_agent')->nullable();
-            $table->timestamps();
-
-            $table->index('user_id');
-            $table->index('last_login_at');
-        });
-
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');

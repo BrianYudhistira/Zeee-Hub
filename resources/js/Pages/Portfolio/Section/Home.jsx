@@ -2,7 +2,7 @@ import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 import TextType from "@/Components/Animations/Text/TextType";
 import Magnet from "@/components/Animations/UI/Magnet";
 
-export default function HomeSection({ home , base_url }) {
+export default function HomeSection({ home }) {
     return (
         <section
             id="home"
@@ -31,13 +31,13 @@ export default function HomeSection({ home , base_url }) {
 
                             <div className="relative leading-none">
                                 <div className="absolute inset-0 blur-sm opacity-50 pointer-events-none">
-                                    <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
+                                    <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
                                         {home.name}
                                     </p>
                                 </div>
                             </div>
 
-                            <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
+                            <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 relative transition-all duration-300 font-retro-pixel tracking-wider">
                                 {home.name}
                             </p>
                         </AnimatedContent>
@@ -150,7 +150,7 @@ export default function HomeSection({ home , base_url }) {
                                 <img
                                     src={`/${home.logo_path}`}
                                     alt="Home Main Illustration"
-                                    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[450px] hover:scale-110 object-contain transition-transform duration-500"
+                                    className="w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[420px] hover:scale-110 object-contain transition-transform duration-500"
                                 />
                             </Magnet>
                         </AnimatedContent>
