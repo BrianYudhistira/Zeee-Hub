@@ -176,7 +176,7 @@ export default function Projects({ project }) {
 
                 <nav className="sticky top-0 z-50 backdrop-blur-md bg-[#050510]/60 border-b border-cyan-400/5">
                     <div className="max-w-[80%] 2xl:max-w-[80%] mx-auto px-6 py-4 flex items-center justify-between">
-                        <a href="#home" className="flex items-center gap-3 group">
+                        <a href="/" className="flex items-center gap-3 group">
                             <img src="/images/web_icon.png" alt="Logo" className="h-8 w-8 md:h-10 md:w-10 transition-transform duration-300 group-hover:scale-105" />
                             <span className="text-white font-extrabold text-sm md:text-lg tracking-wider font-retro-mono">
                                 ZeeeHub
