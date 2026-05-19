@@ -1,10 +1,25 @@
 import GlareHover from '@/Components/Animations/UI/GlareHover';
 import { AiOutlineMail } from 'react-icons/ai';
 import { MdOutlineCall } from 'react-icons/md';
-import { FaLinkedin, FaGithub,FaInstagram } from 'react-icons/fa6';
+import { FaLinkedin, FaGithub, FaInstagram } from 'react-icons/fa6';
+import { useForm } from '@inertiajs/react';
 
-export default function ContactSection({ contacts , sosmedLinks}) {
-    return(
+export default function ContactSection({ contacts, sosmedLinks }) {
+    const { data, setData, post, processing, reset, recentlySuccessful } = useForm({
+        name: '',
+        email: '',
+        message: '',
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        post('/messageMe', {
+            preserveScroll: true,
+            onSuccess: () => reset(),
+        });
+    };
+
+    return (
         <section id="contact" className='flex flex-col items-center mx-auto py-20 scroll-mt-16 relative'>
             <div className='flex flex-col justify-center max-w-[80%] md:max-w-[75%] xl:max-w-[70%] w-full z-20'>
                 <div className="flex flex-col justify-center items-center mb-10">
@@ -27,7 +42,7 @@ export default function ContactSection({ contacts , sosmedLinks}) {
                             className='hidden md:flex flex-row justify-start items-center backdrop-blur-sm rounded-lg px-4 py-3 cursor-pointer hover:scale-[1.02] transition-transform duration-300'
                         >
                             <div className='flex flex-row justify-start items-center cursor-pointer'>
-                                <AiOutlineMail className='text-white text-4xl p-1 rounded-full bg-blue-400'/>
+                                <AiOutlineMail className='text-white text-4xl p-1 rounded-full bg-blue-400' />
                                 <div className='flex flex-col justify-center ml-4'>
                                     <span className='text-white text-sm md:text-base'>Email:</span>
                                     <span className='text-white text-sm md:text-base'>{contacts.email}</span>
@@ -46,7 +61,7 @@ export default function ContactSection({ contacts , sosmedLinks}) {
                             className='hidden md:flex flex-row justify-start items-center backdrop-blur-sm rounded-lg px-4 py-3 cursor-pointer hover:scale-[1.02] transition-transform duration-300'
                         >
                             <div className='flex flex-row justify-start items-center cursor-pointer'>
-                                <MdOutlineCall className='text-white text-2xl md:text-4xl p-1 text-center rounded-full bg-blue-400'/>
+                                <MdOutlineCall className='text-white text-2xl md:text-4xl p-1 text-center rounded-full bg-blue-400' />
                                 <div className='flex flex-col justify-center ml-4'>
                                     <span className='text-white text-sm md:text-base'>phone:</span>
                                     <span className='text-white text-sm md:text-base'>{contacts.phone}</span>
@@ -89,41 +104,53 @@ export default function ContactSection({ contacts , sosmedLinks}) {
                             <h3 className='text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-400 to-blue-700 font-retro-pixel tracking-wider'>Send Message</h3>
                             <p className='text-gray-300 text-sm font-retro-mono'>Let's start a conversation</p>
                         </div>
-                        <form className='w-full' action="https://formspree.io/f/mayvlrdo" method="POST">
+                        {recentlySuccessful && (
+                            <div className="mb-4 p-3 bg-green-500/20 border border-green-500 rounded-md text-green-400 text-sm font-retro-mono text-center">
+                                Message sent successfully!
+                            </div>
+                        )}
+                        <form className='w-full' onSubmit={handleSubmit}>
                             <div className='flex flex-col space-y-6'>
                                 <div className="relative group">
                                     <label className='text-base font-semibold text-white mb-2 block group-focus-within:text-cyan-300 transition-colors duration-300 font-retro-mono'>Full Name</label>
-                                    <input 
-                                        type="text" 
-                                        name="name" 
-                                        placeholder=' your full name' 
-                                        required 
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder=' your full name'
+                                        required
                                         className='w-full text-sm px-3 py-2 md:px-4 md:py-3 rounded-md font-retro-mono text-gray-100 bg-gray-900/90 border-2 border-gray-400 hover:border-blue-400 focus:border-blue-500 placeholder-gray-400 focus:outline-none focus:ring-0 transition-all duration-200'
+                                        value={data.name}
+                                        onChange={(e) => setData('name', e.target.value)}
                                     />
                                 </div>
                                 <div className="relative group">
                                     <label className='text-base font-semibold text-white mb-2 block group-focus-within:text-cyan-300 transition-colors duration-300 font-retro-mono'>Email Address</label>
-                                    <input 
-                                        type="email" 
-                                        name="email" 
-                                        placeholder='your.email@example.com' 
-                                        required 
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder='your.email@example.com'
+                                        required
                                         className='w-full text-sm px-3 py-2 md:px-4 md:py-3 rounded-md font-retro-mono text-gray-100 bg-gray-900/90 border-2 border-gray-400 hover:border-blue-400 focus:border-blue-500 placeholder-gray-400 focus:outline-none focus:ring-0 transition-all duration-200'
+                                        value={data.email}
+                                        onChange={(e) => setData('email', e.target.value)}
                                     />
                                 </div>
                                 <div className="relative group">
                                     <label className='text-base font-semibold text-white mb-2 block group-focus-within:text-cyan-300 transition-colors duration-300 font-retro-mono'>Message</label>
-                                    <textarea 
-                                        name="message" 
-                                        rows="4" 
-                                        placeholder='Tell me something' 
-                                        required 
+                                    <textarea
+                                        name="message"
+                                        rows="4"
+                                        placeholder='Tell me something'
+                                        required
                                         className='w-full text-sm px-3 py-2 md:px-4 md:py-3 rounded-md font-retro-mono text-gray-100 bg-gray-900/90 border-2 border-gray-400 hover:border-blue-400 focus:border-blue-500 placeholder-gray-400 focus:outline-none focus:ring-0 transition-all duration-200 resize-none'
+                                        value={data.message}
+                                        onChange={(e) => setData('message', e.target.value)}
                                     ></textarea>
                                 </div>
-                                <button 
-                                    type="submit" 
-                                    className='w-full text-gray-100 bg-gray-900 border-2 border-gray-400 rounded-md px-4 py-3 font-retro-pixel font-semibold tracking-wider hover:border-blue-400 transition-all duration-200 text-center'
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className={`w-full text-gray-100 bg-gray-900 border-2 border-gray-400 rounded-md px-4 py-3 font-retro-pixel font-semibold tracking-wider transition-all duration-200 text-center ${processing ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-400'}`}
                                 >
                                     <span className="flex items-center justify-center gap-2">
                                         Send Message

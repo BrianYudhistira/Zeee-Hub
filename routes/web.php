@@ -16,9 +16,20 @@ Route::group(['prefix' => 'me'], function () {
     })->name('portfolio.projects');
 });
 
+Route::post('/messageMe', [PortfolioController::class, 'sendMessage'])->name('portfolio.sendMessage');
+
 Route::get('/portfolio/{slug}', [PortfolioController::class, 'getPortfolioBySlug'])->name('portfolio.slug');
+
 Route::get('/test', function () {
-    return view('emails.verify', ['url' => 'https://example.com/verify?token=123456', 'name' => 'John Doe']);
+    return new \App\Mail\SendMailToMe(
+        'John Doe', 
+        'test@gmail.com', 
+        'Hello, this is a test message.'
+    );
 });
+
+// Route::get('/test', function () {
+//     return view('emails.verify', ['url' => 'https://example.com/verify?token=123456', 'name' => 'John Doe']);
+// });
 
 Route::get('/verify-email/{id}/{hash}', [App\Http\Controllers\API\EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('signed');
