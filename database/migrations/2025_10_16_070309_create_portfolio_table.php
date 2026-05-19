@@ -77,6 +77,7 @@ return new class extends Migration
             $table->string('position', 255);
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->string('certificate_path')->nullable();
             $table->text('description');
             $table->string('tech_stack')->nullable();
             $table->timestamps();

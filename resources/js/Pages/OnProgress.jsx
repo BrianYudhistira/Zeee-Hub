@@ -7,7 +7,6 @@ export default function OnProgress({ title = "Feature On Progress" }) {
         <>
             <Head title={title} />
 
-            {/* Calm particles background matching the main theme */}
             <FuturisticBackground
                 speed={0.5}
                 particleCount={40}
@@ -18,7 +17,6 @@ export default function OnProgress({ title = "Feature On Progress" }) {
             <div className="relative min-h-screen flex items-center justify-center font-retro-mono px-6 py-12 md:py-16 lg:px-16 bg-[#050510]/95 transition-colors duration-300">
                 <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
 
-                    {/* Left Column - Text */}
                     <div className="text-center md:text-left flex flex-col items-center md:items-start order-2 md:order-1 relative z-10">
                         <AnimatedContent distance={40} direction="vertical" reverse={false} duration={1} ease="power3.out" initialOpacity={0} animateOpacity scale={1} threshold={0.1}>
                             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-none tracking-tight mb-4 font-retro-pixel bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,211,238,0.15)]">
@@ -39,7 +37,6 @@ export default function OnProgress({ title = "Feature On Progress" }) {
                         </AnimatedContent>
                     </div>
 
-                    {/* Right Column - Illustration */}
                     <div className="order-1 md:order-2 w-full flex justify-center md:justify-end relative z-10">
                         <div className="w-full max-w-[320px] lg:max-w-md xl:max-w-lg">
                             <AnimatedContent distance={40} direction="vertical" reverse={true} duration={1.2} ease="power3.out" initialOpacity={0} animateOpacity scale={0.95} threshold={0.1} delay={0.1}>

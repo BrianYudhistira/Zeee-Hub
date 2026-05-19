@@ -8,7 +8,7 @@ function getDeviconClass(icon) {
 
 export default function ProjectSection({ projects }) {
     return (
-        <section id="project" className='min-h-[90vh] h-auto w-full flex justify-center font-retro-mono scroll-mt-24 '>
+        <section id="project" className='min-h-[90vh] h-auto w-full flex justify-center py-20 font-retro-mono scroll-mt-24 '>
             <div className='max-w-[80%] 2xl:max-w-[85%] w-full'>
                 <div className='flex flex-col'>
                     <AnimatedContent

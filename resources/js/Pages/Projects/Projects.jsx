@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AnimatedContent from "@/Components/Animations/UI/AnimatedContent";
 import FuturisticBackground from "@/Components/Animations/Background/FuturisticBackground";
+import Footer from "@/Components/Footer";
 
 
 function getDeviconClass(icon) {
@@ -366,6 +367,8 @@ export default function Projects({ project }) {
                 </div>
 
                 <div className="h-8" />
+                
+                <Footer />
             </div>
         </>
     );

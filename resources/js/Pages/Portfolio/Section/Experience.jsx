@@ -61,8 +61,8 @@ function ExperienceCard({ experience, index, isLeft }) {
     return (
         <div
             className={`w-full lg:w-[calc(50%-2rem)] ${isLeft
-                    ? "lg:mr-auto lg:pr-4"
-                    : "lg:ml-auto lg:pl-4"
+                ? "lg:mr-auto lg:pr-4"
+                : "lg:ml-auto lg:pl-4"
                 }`}
         >
             <AnimatedContent
@@ -139,6 +139,31 @@ function ExperienceCard({ experience, index, isLeft }) {
                                     </span>
                                 ))}
                             </div>
+                            {experience.certificate_path && (
+                                <div className="flex justify-end mt-4">
+                                    <a
+                                        href={`/storage/${experience.certificate_path}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1.5 text-xs md:text-sm font-semibold text-cyan-300 hover:text-cyan-400 transition-colors duration-200"
+                                    >
+                                        View Certificate
+                                        <svg
+                                            className="w-4 h-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                            />
+                                        </svg>
+                                    </a>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -202,10 +227,32 @@ export default function Experience({ experiences }) {
                         </p>
                     </AnimatedContent>
                 </div>
+                <div className="flex justify-center mt-10">
+                    <AnimatedContent
+                        distance={30}
+                        direction="vertical"
+                        reverse={false}
+                        duration={1}
+                        ease="power3.out"
+                        initialOpacity={0}
+                        animateOpacity
+                        scale={1}
+                        threshold={0}
+                        delay={0.3}
+                    >
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-xs text-cyan-300/60 font-retro-mono tracking-widest">
+                                THE JOURNEY CONTINUES
+                            </span>
+                            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-cyan-300 to-blue-500 shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
+                        </div>
+                    </AnimatedContent>
+                </div>
 
                 {/* Timeline */}
                 <div ref={timelineRef} className="relative">
                     {/* Center vertical line (desktop) */}
+
                     <TimelineConnector isVisible={lineVisible} />
 
                     {/* Mobile vertical line (left side) */}
@@ -280,6 +327,21 @@ export default function Experience({ experiences }) {
                                                                 </span>
                                                             ))}
                                                         </div>
+                                                        <div className="flex justify-end">
+                                                            {exp.certificate_path && (
+                                                                <a
+                                                                    href={`/storage/${exp.certificate_path}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-400 transition-colors duration-200"
+                                                                >
+                                                                    View Certificate
+                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                    </svg>
+                                                                </a>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -316,7 +378,7 @@ export default function Experience({ experiences }) {
                             <div className="flex flex-col items-center gap-2">
                                 <div className="w-3 h-3 rounded-full bg-gradient-to-br from-cyan-300 to-blue-500 shadow-[0_0_12px_rgba(34,211,238,0.5)]" />
                                 <span className="text-xs text-cyan-300/60 font-retro-mono tracking-widest">
-                                    THE JOURNEY CONTINUES
+                                    Starts
                                 </span>
                             </div>
                         </AnimatedContent>

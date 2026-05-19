@@ -126,7 +126,7 @@ export default function Portfolio({ portfolio }) {
                                     key={link.href}
                                     href={link.href}
                                     data-nav-link
-                                    className="text-sm tracking-widest uppercase text-white/60 hover:text-cyan-400 transition-colors duration-300 font-retro-mono font-medium"
+                                    className="text-sm tracking-widest uppercase text-white/90 hover:text-cyan-400 transition-colors duration-300 font-retro-mono font-medium"
                                 >
                                     {link.label}
                                 </a>
@@ -150,7 +150,7 @@ export default function Portfolio({ portfolio }) {
                                     href={link.href}
                                     data-nav-link
                                     onClick={() => setMenuOpen(false)}
-                                    className="block py-2.5 text-sm tracking-widest uppercase text-white/60 hover:text-cyan-400 transition-colors duration-300 font-retro-mono"
+                                    className="block py-2.5 text-sm tracking-widest uppercase text-white/90 hover:text-cyan-400 transition-colors duration-300 font-retro-mono"
                                 >
                                     {link.label}
                                 </a>
