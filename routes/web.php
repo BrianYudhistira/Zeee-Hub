@@ -10,15 +10,19 @@ Route::get('/', function () {
 
 Route::group(['prefix' => 'me'], function () {
     Route::get('/', [PortfolioController::class, 'index'])->name('portfolio.index');
-    Route::get('/projects/{slug}', [PortfolioController::class, 'getProjectById'])->name('portfolio.project');
-    Route::get('/projects', function () {
-        return Inertia::render('OnProgress', ['title' => 'Projects']);
-    })->name('portfolio.projects');
+    
+    Route::get('/projects', [PortfolioController::class, 'listProject'])->name('portfolio.projects');
+    Route::get('/projects/{slug}', [PortfolioController::class, 'getProjectBySlug'])->name('portfolio.project');
 });
 
-Route::get('/portfolio/{slug}', [PortfolioController::class, 'getPortfolioBySlug'])->name('portfolio.slug');
+Route::post('/messageMe', [PortfolioController::class, 'sendMessage'])->name('portfolio.sendMessage');
+
 Route::get('/test', function () {
-    return view('emails.verify', ['url' => 'https://example.com/verify?token=123456', 'name' => 'John Doe']);
+    return new \App\Mail\SendMailToMe(
+        'John Doe', 
+        'test@gmail.com', 
+        'Hello, this is a test message.'
+    );
 });
 
 Route::get('/verify-email/{id}/{hash}', [App\Http\Controllers\API\EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('signed');

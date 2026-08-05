@@ -43,7 +43,7 @@ export default function OnProgress({ title = "Feature On Progress" }) {
                                 <div className="relative w-full group">
 
                                     <img
-                                        src="/Images/asset/Under construction-amico.svg"
+                                        src="/images/asset/Under construction-amico.svg"
                                         alt="Under Construction Illustration"
                                         className="relative z-10 w-full h-auto object-contain transition-transform duration-700 group-hover:-translate-y-5 drop-shadow-[0_0_25px_rgba(34,211,238,0.15)]"
                                     />
