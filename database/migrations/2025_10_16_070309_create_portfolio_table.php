@@ -53,6 +53,8 @@ return new class extends Migration
             $table->string('demo_url')->nullable();
             $table->string('source_url')->nullable();
             $table->json('tech_stack');
+            $table->enum('project_type', ['website', 'mobile', 'backend', 'other'])->nullable();
+            $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->boolean('is_featured')->default(false);
             $table->timestamps();

@@ -21,7 +21,20 @@ class PortfolioController
         ]);
     }
 
-    public function getProjectById($slug)
+    public function listProject()
+    {
+        $projects = Project::with(['techStacks', 'images'])->get();
+
+        if (! $projects) {
+            abort(404, 'Projects not found');
+        }
+
+        return Inertia::render('Portfolio/Projects/ListProject', [
+            'projects' => $projects,
+        ]);
+    }
+
+    public function getProjectBySlug($slug)
     {
         $project = Project::with(['techStacks', 'images'])->where('slug', $slug)->first();
 
@@ -29,29 +42,8 @@ class PortfolioController
             abort(404, 'Project not found');
         }
 
-        return Inertia::render('Projects/Projects', [
+        return Inertia::render('Portfolio/Projects/DetailProject', [
             'project' => $project,
-        ]);
-    }
-
-    public function getPortfolioBySlug($slug)
-    {
-        Log::info('Searching for portfolio with slug: ' . $slug);
-
-        $portfolio = PortfolioUser::with(['user', 'home', 'about', 'projects.techStacks', 'contacts', 'experiences', 'userSkills.techStack'])
-            ->where('slug', $slug)
-            ->where('is_active', true)
-            ->first();
-
-        // Debug: Log what was found
-        Log::info('Portfolio found:', ['id' => $portfolio?->id, 'slug' => $portfolio?->slug]);
-
-        if (! $portfolio) {
-            abort(404, 'Portfolio not found');
-        }
-
-        return Inertia::render('Portfolio/Portfolio', [
-            'portfolio' => $portfolio,
         ]);
     }
 

@@ -52,7 +52,6 @@ function ImageSlider({ images, altText }) {
     }, []);
 
     useEffect(() => {
-        // Hanya jalan jika gambar > 1, sedang terlihat di layar, dan tidak sedang di-hover
         if (!images || images.length <= 1 || !isInView || isHovered) return;
         
         const interval = setInterval(() => {
@@ -129,7 +128,7 @@ function ImageSlider({ images, altText }) {
     );
 }
 
-export default function Projects({ project }) {
+export default function DetailProject({ project }) {
     if (!project) {
         return (
             <div className="min-h-screen flex items-center justify-center text-white bg-gray-900 font-retro-mono">
@@ -279,10 +278,8 @@ export default function Projects({ project }) {
                                                 key={idx}
                                                 className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-400/[0.03] border border-cyan-400/10 hover:bg-cyan-400/[0.08] hover:border-cyan-400/25 transition-all duration-300"
                                             >
-                                                {iconClass ? (
+                                                {iconClass && (
                                                     <i className={`${iconClass} text-xl text-cyan-300/70 group-hover:text-cyan-300 transition-colors duration-300`} />
-                                                ) : (
-                                                    <div className="w-5 h-5 rounded bg-cyan-400/20 group-hover:bg-cyan-400/40 transition-colors duration-300 shrink-0" />
                                                 )}
                                                 <span className="text-sm text-white/80 group-hover:text-white transition-colors duration-300">
                                                     {tech.name}

@@ -105,14 +105,10 @@ export default function SkillsSection({ skills }) {
                                     {category.items.map((skill, idx) => (
                                         <div
                                             key={`${skill.name}-${idx}`}
-                                            className="group flex items-center gap-2.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.07] hover:border-cyan-400/30 transition-all duration-300 cursor-default"
+                                            className="group rounded-lg flex items-center gap-2.5 px-3 py-2 md:px-4 md:py-2.5 bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.07] hover:border-cyan-400/30 transition-all duration-300 cursor-default"
                                         >
-                                            {skill.icon ? (
+                                            {skill.icon && (
                                                 <i className={`${getDeviconClass(skill.icon)} text-base md:text-lg text-white/90 group-hover:text-cyan-400 transition-colors duration-300`} />
-                                            ) : (
-                                                <span className="w-4 h-4 rounded-sm border border-cyan-400/40 text-[10px] leading-4 text-center text-cyan-300/70 font-retro-mono">
-                                                    #
-                                                </span>
                                             )}
                                             <span className="text-xs md:text-sm text-white/90 group-hover:text-white transition-colors duration-300 font-retro-mono">
                                                 {skill.name}

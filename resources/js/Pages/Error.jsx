@@ -8,13 +8,13 @@ export default function ErrorPage({ status }) {
             title: '404',
             name: 'Page Not Found',
             description: 'Sorry, the page you are looking for could not be found.',
-            image: '/Images/asset/404.svg'
+            image: '/images/asset/404.svg'
         },
         500: {
             title: '500',
             name: 'Server Error',
             description: 'Whoops, something went wrong on our servers. We are looking into it.',
-            image: '/Images/asset/500.svg'
+            image: '/images/asset/500.svg'
         }
     };
 
